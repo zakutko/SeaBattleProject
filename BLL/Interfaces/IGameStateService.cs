@@ -1,9 +1,7 @@
-﻿using DAL.Models;
-
-namespace BLL.Interfaces
+﻿namespace BLL.Interfaces
 {
     public interface IGameStateService
     {
-        GameState GetGameState(int id);
+        string GetGameState(int id);
     }
 }

@@ -1,7 +1,11 @@
-﻿using BLL.Handlers.Fields;
+﻿using BLL.Handlers.Cells;
+using BLL.Handlers.Fields;
 using BLL.Handlers.GameFields;
 using BLL.Handlers.Games;
 using BLL.Handlers.PlayerGames;
+using BLL.Handlers.Positions;
+using BLL.Handlers.Ships;
+using BLL.Handlers.ShipWrappers;
 using BLL.Interfaces;
 using DAL.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -16,16 +20,34 @@ namespace WEB.Controllers
     {
         private readonly IGameService _gameService;
         private readonly IPlayerService _playerService;
-        private readonly IGameStateService _gameStateService;
         private readonly IPlayerGameService _playerGameService;
         private readonly IGameFieldService _gameFieldService;
-        public GameController(IGameService gameService, IPlayerService playerService, IGameStateService gameStateService, IPlayerGameService playerGameService, IGameFieldService gameFieldService)
+        private readonly IGameStateService _gameStateService;
+        private readonly IDirectionService _directionService;
+        private readonly ICellService _cellService;
+        private readonly IPositionService _positionService;
+        private readonly IFieldService _fieldService;
+
+        public GameController(
+            IGameService gameService, 
+            IPlayerService playerService, 
+            IPlayerGameService playerGameService, 
+            IGameFieldService gameFieldService, 
+            IGameStateService gameStateService,
+            IDirectionService directionService,
+            ICellService cellService,
+            IPositionService positionService,
+            IFieldService fieldService)
         {
             _gameService = gameService;
             _playerService = playerService;
-            _gameStateService = gameStateService;
             _playerGameService = playerGameService;
             _gameFieldService = gameFieldService;
+            _gameStateService = gameStateService;
+            _directionService = directionService;
+            _cellService = cellService;
+            _positionService = positionService;
+            _fieldService = fieldService;
         }
 
         [HttpGet]
@@ -69,7 +91,7 @@ namespace WEB.Controllers
                     Id = game.Id,
                     FirstPlayer = firstPlayer.UserName,
                     SecondPlayer = secondPlayer?.UserName,
-                    GameState = gameState.GameStateName,
+                    GameState = gameState,
                     NumberOfPlayers = numberOfPlayers
                 });
             }
@@ -128,6 +150,45 @@ namespace WEB.Controllers
             var gameField = new GameField { Id = gameFieldId, FirstFieldId = firstFieldId, SecondFieldId = field.Id, GameId = gameId };
             await Mediator.Send(new UpdateGameField.Command { GameField = gameField });
 
+            return Ok();
+        }
+
+        [HttpPost("prepareGame")]
+        public async Task<IActionResult> CreateShipOnField(int shipSize, int shipDirection, int x, int y, string token)
+        {
+            var handler = new JwtSecurityTokenHandler();
+            var jwtSecurityToken = handler.ReadJwtToken(token);
+            var username = jwtSecurityToken.Claims.First(claim => claim.Type == "unique_name").Value;
+
+            var playerId = _gameService.GetPlayerId(username);
+            var fieldId = _fieldService.GetFieldId(playerId);
+
+            var ship = new Ship { DirectionId = shipDirection, ShipStateId = 1, ShipSizeId = shipSize };
+
+            //add ship to Ship table
+            await Mediator.Send(new CreateShip.Command { Ship = ship });
+
+            var shipWrapper = new ShipWrapper { ShipId = ship.Id, FieldId = fieldId };
+
+            //add shipWrapper to ShipWrapper table
+            await Mediator.Send(new CreateShipWrapper.Command { ShipWrapper = shipWrapper });
+
+            var shipDirectionName = _directionService.GetDirectionName(shipDirection);
+            var cellList = _cellService.getAllCells(shipDirectionName, shipSize, x, y);
+
+            //add cells to Cell table
+            foreach (var cell in cellList)
+            {
+                await Mediator.Send(new CreateCell.Command { Cell = cell });
+            }
+
+            var positionList = _positionService.GetAllPositions(shipWrapper.Id, cellList);
+
+            //add positions to Position table
+            foreach (var position in positionList)
+            {
+                await Mediator.Send(new CreatePosition.Command { Position = position });
+            }
             return Ok();
         }
     }

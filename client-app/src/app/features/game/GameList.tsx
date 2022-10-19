@@ -35,46 +35,48 @@ export default observer(function GameList() {
     return (
         <>
         <NavBar />
-        <Button onClick={onClick} as={Link} to="/prepareGame" color="purple">Create Game</Button>
-        <Table celled>
-            <Table.Header>
-                <Table.Row>
-                    <Table.HeaderCell>Game</Table.HeaderCell>
-                    <Table.HeaderCell>Owner</Table.HeaderCell>
-                    <Table.HeaderCell>Game State</Table.HeaderCell>
-                    <Table.HeaderCell>Number of Players</Table.HeaderCell>
-                    <Table.HeaderCell></Table.HeaderCell>
-                </Table.Row>
-            </Table.Header>
-
-            <Table.Body>
-                {gameList.map(game => (
-                    <Table.Row key={game.id}>
-                        <Table.Cell>
-                            {game.id}
-                        </Table.Cell>
-                        <Table.Cell>
-                            {game.firstPlayer}
-                        </Table.Cell>
-                        <Table.Cell>
-                            {game.gameState}
-                        </Table.Cell>
-                        <Table.Cell>
-                            {game.numberOfPlayers} of 2
-                        </Table.Cell>
-                        {game.numberOfPlayers === 2 ? (
-                            <Table.Cell>
-                                <Label>The game already started!</Label>
-                            </Table.Cell>
-                        ) : (
-                            <Table.Cell>
-                                <Button as={Link} to="/prepareGame" onClick={() => onClickJoin(game.id)}>Join the game</Button>
-                            </Table.Cell>
-                        )}
+        <div className="gameList">
+            <Button onClick={onClick} as={Link} to="/prepareGame" color="purple">Create Game</Button>
+            <Table celled>
+                <Table.Header>
+                    <Table.Row>
+                        <Table.HeaderCell>Game</Table.HeaderCell>
+                        <Table.HeaderCell>Owner</Table.HeaderCell>
+                        <Table.HeaderCell>Game State</Table.HeaderCell>
+                        <Table.HeaderCell>Number of Players</Table.HeaderCell>
+                        <Table.HeaderCell></Table.HeaderCell>
                     </Table.Row>
-                ))}
-            </Table.Body>
-        </Table>
+                </Table.Header>
+
+                <Table.Body>
+                    {gameList.map(game => (
+                        <Table.Row key={game.id}>
+                            <Table.Cell>
+                                {game.id}
+                            </Table.Cell>
+                            <Table.Cell>
+                                {game.firstPlayer}
+                            </Table.Cell>
+                            <Table.Cell>
+                                {game.gameState}
+                            </Table.Cell>
+                            <Table.Cell>
+                                {game.numberOfPlayers} of 2
+                            </Table.Cell>
+                            {game.numberOfPlayers === 2 ? (
+                                <Table.Cell>
+                                    <Label>The game already started!</Label>
+                                </Table.Cell>
+                            ) : (
+                                <Table.Cell>
+                                    <Button as={Link} to="/prepareGame" onClick={() => onClickJoin(game.id)}>Join the game</Button>
+                                </Table.Cell>
+                            )}
+                        </Table.Row>
+                    ))}
+                </Table.Body>
+            </Table>
+        </div>
         </>
     )
 })

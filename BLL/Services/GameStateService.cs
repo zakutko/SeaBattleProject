@@ -13,16 +13,11 @@ namespace BLL.Services
             _repository = repository;
         }
 
-        public GameState GetGameState(int id)
+        public string GetGameState(int id)
         {
-            var result = _repository.GetById(id);
+            var gameState = _repository.GetById(id);
 
-            if (result == null)
-            {
-                throw new Exception("GameState does not exist!");
-            }
-
-            return result;
+            return gameState.GameStateName;
         }
     }
 }

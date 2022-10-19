@@ -24,7 +24,7 @@ const GameStates = {
 const Games = {
     games: (token: string) => request.get<GameList[]>(`/Game?token=${token}`),
     createGame: (token: string) => request.get<void>(`Game/createGame?token=${token}`),
-    joinSecondPlayer: (id: number, token: string) => request.get<void>(`Game/joinSecondPlayer?id=${id}&&username=${token}`),
+    joinSecondPlayer: (id: number, token: string) => request.get<void>(`Game/joinSecondPlayer?id=${id}&&token=${token}`),
 }
 
 const Account = {

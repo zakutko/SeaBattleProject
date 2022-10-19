@@ -1,0 +1,30 @@
+.prepareGame {
+    padding-top: 80px;
+    margin-bottom: 40px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.field {
+    margin-right: 20px;
+}
+
+.fieldForm {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.form {
+    display: block;
+}
+
+.form-input {
+    width: 100px;
+}
+
+.prepareGameButton {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
