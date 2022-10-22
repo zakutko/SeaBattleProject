@@ -1,5 +1,6 @@
 export interface CellList{
-    X: number,
-    Y: number,
-    cellState: number;
+    id: number,
+    x: number,
+    y: number,
+    cellStateId: number;
 }

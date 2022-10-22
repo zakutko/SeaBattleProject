@@ -20,21 +20,16 @@ export default observer(function RowCell(props: any){
 
     return (
         <>
-        {cellList.map(cell => (
-            <div className="rowCell">
-                <CellNumber number={props.number}/>
-                <Cell />
-                <Cell />
-                <Cell />
-                <Cell />
-                <Cell />
-                <Cell />
-                <Cell />
-                <Cell />
-                <Cell />
-                <Cell />
-            </div>
-        ))}
+        <div className="rowCell">
+            <>
+            <CellNumber number={props.number}/>
+            {cellList.map(cell => {
+                if (cell.y === props.Y){
+                    <Cell key={cell.id}/>
+                }
+            })}
+            </>
+        </div>
         </>
     )
 })

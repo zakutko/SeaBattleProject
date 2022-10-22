@@ -175,6 +175,7 @@ namespace WEB.Controllers
             {
                 cellListViewModels.Add(new CellListViewModel
                 {
+                    Id = cell.Id,
                     X = cell.X,
                     Y = cell.Y,
                     CellStateId = cell.CellStateId
@@ -265,6 +266,7 @@ namespace WEB.Controllers
 
             if (!cellList.Any())
             {
+                await Mediator.Send(new DeleteShipWrapper.Command { ShipWrapper = shipWrapper });
                 await Mediator.Send(new DeleteShip.Command { Ship = ship });
                 return BadRequest("The place is occupied by another ship!");
             }
@@ -277,7 +279,7 @@ namespace WEB.Controllers
                 await Mediator.Send(new UpdateCell.Command { Cell = updateCell });
 
                 //update positions in Position table
-                var positionId = _positionService.GetPositionId(cellId);
+                var positionId = _positionService.GetPositionByCellId(cellId);
                 var updatePosition = new Position { Id = positionId, ShipWrapperId = shipWrapper.Id, CellId = cellId };
                 await Mediator.Send(new UpdatePosition.Command { Position = updatePosition });
             }

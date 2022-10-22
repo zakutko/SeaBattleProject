@@ -50,7 +50,7 @@ namespace BLL.Services
 
         public int GetNumberOfShipsWhereSizeTwo(int fieldId)
         {
-            var shipWrapperList = _repository.GetAll().Where(x => x.FieldId == fieldId).ToList();
+            var shipWrapperList = _repository.GetAll().Where(x => x.FieldId == fieldId && x.ShipId != null).ToList();
             var shipList = new List<Ship>();
 
             foreach (var shipWrapper in shipWrapperList)
@@ -84,7 +84,7 @@ namespace BLL.Services
 
         public int GetNumberOfShipsWhereSizeFour(int fieldId)
         {
-            var shipWrapperList = _repository.GetAll().Where(x => x.FieldId == fieldId).ToList();
+            var shipWrapperList = _repository.GetAll().Where(x => x.FieldId == fieldId && x.ShipId != null).ToList();
             var shipList = new List<Ship>();
 
             foreach (var shipWrapper in shipWrapperList)
