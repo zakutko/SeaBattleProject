@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DAL.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20221019071629_InitialMigration")]
+    [Migration("20221022001527_InitialMigration")]
     partial class InitialMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -383,17 +383,17 @@ namespace DAL.Migrations
                         .HasColumnType("int")
                         .HasColumnName("fieldId");
 
-                    b.Property<int>("ShipId")
+                    b.Property<int?>("ShipId")
                         .HasColumnType("int")
                         .HasColumnName("shipId");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("FieldId")
-                        .IsUnique();
+                    b.HasIndex("FieldId");
 
                     b.HasIndex("ShipId")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("[shipId] IS NOT NULL");
 
                     b.ToTable("ShipWrapper");
                 });
@@ -659,16 +659,14 @@ namespace DAL.Migrations
             modelBuilder.Entity("DAL.Models.ShipWrapper", b =>
                 {
                     b.HasOne("DAL.Models.Field", "Field")
-                        .WithOne("ShipWrapper")
-                        .HasForeignKey("DAL.Models.ShipWrapper", "FieldId")
+                        .WithMany()
+                        .HasForeignKey("FieldId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("DAL.Models.Ship", "Ship")
                         .WithOne("ShipWrapper")
-                        .HasForeignKey("DAL.Models.ShipWrapper", "ShipId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("DAL.Models.ShipWrapper", "ShipId");
 
                     b.Navigation("Field");
 
@@ -724,11 +722,6 @@ namespace DAL.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("DAL.Models.Field", b =>
-                {
-                    b.Navigation("ShipWrapper");
                 });
 
             modelBuilder.Entity("DAL.Models.Ship", b =>

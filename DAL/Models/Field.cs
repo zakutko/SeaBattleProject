@@ -13,6 +13,5 @@ namespace DAL.Models
         [Column("appUserId")]
         public string PlayerId { get; set; }
         public virtual AppUser Player { get; set; }
-        public virtual ShipWrapper ?ShipWrapper { get; set; }
     }
 }

@@ -27,6 +27,7 @@ namespace WEB.Controllers
         private readonly ICellService _cellService;
         private readonly IPositionService _positionService;
         private readonly IFieldService _fieldService;
+        private readonly IShipWrapperService _shipWrapperService;
 
         public GameController(
             IGameService gameService, 
@@ -37,7 +38,8 @@ namespace WEB.Controllers
             IDirectionService directionService,
             ICellService cellService,
             IPositionService positionService,
-            IFieldService fieldService)
+            IFieldService fieldService,
+            IShipWrapperService shipWrapperService)
         {
             _gameService = gameService;
             _playerService = playerService;
@@ -48,14 +50,34 @@ namespace WEB.Controllers
             _cellService = cellService;
             _positionService = positionService;
             _fieldService = fieldService;
+            _shipWrapperService = shipWrapperService;
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<GameListViewModel>>> GetGames(string token)
+        public async Task<ActionResult<IEnumerable<GameListViewModel>>> GetGames(string token)
         {
             var playerGameList = await Mediator.Send(new List.Query());
 
-            var playerGameListAll = CreateGameListViewModel(playerGameList);
+            var playerGameListAll = new List<GameListViewModel>();
+
+            foreach (var playerGame in playerGameList)
+            {
+                var game = _gameService.GetGame(playerGame.GameId);
+                var firstPlayer = _playerService.GetPlayer(playerGame.FirstPlayerId);
+                var secondPlayer = _playerService.GetPlayer(playerGame.SecondPlayerId);
+                var gameState = _gameStateService.GetGameState(game.GameStateId);
+
+                var numberOfPlayers = _playerGameService.GetNumberOfPlayers(playerGame.GameId);
+
+                playerGameListAll.Add(new GameListViewModel
+                {
+                    Id = game.Id,
+                    FirstPlayer = firstPlayer.UserName,
+                    SecondPlayer = secondPlayer?.UserName,
+                    GameState = gameState,
+                    NumberOfPlayers = numberOfPlayers
+                });
+            }
             var playerGameListWithoutCurrUser = new List<GameListViewModel>();
 
             var handler = new JwtSecurityTokenHandler();
@@ -73,31 +95,7 @@ namespace WEB.Controllers
 
             return Ok(playerGameListWithoutCurrUser);
         }
-        private List<GameListViewModel> CreateGameListViewModel(List<PlayerGame> playerGameList)
-        {
-            var gameListViewModel = new List<GameListViewModel>();
-
-            foreach(var playerGame in playerGameList)
-            {
-                var game = _gameService.GetGame(playerGame.GameId);
-                var firstPlayer = _playerService.GetPlayer(playerGame.FirstPlayerId);
-                var secondPlayer = _playerService.GetPlayer(playerGame.SecondPlayerId);
-                var gameState = _gameStateService.GetGameState(game.GameStateId);
-
-                var numberOfPlayers = _playerGameService.GetNumberOfPlayers(playerGame.GameId);
-
-                gameListViewModel.Add(new GameListViewModel
-                {
-                    Id = game.Id,
-                    FirstPlayer = firstPlayer.UserName,
-                    SecondPlayer = secondPlayer?.UserName,
-                    GameState = gameState,
-                    NumberOfPlayers = numberOfPlayers
-                });
-            }
-            return gameListViewModel;
-        }
-
+        
         [HttpGet("createGame")]
         public async Task<IActionResult> CreateGame(string token)
         {
@@ -153,17 +151,105 @@ namespace WEB.Controllers
             return Ok();
         }
 
-        [HttpPost("prepareGame")]
-        public async Task<IActionResult> CreateShipOnField(int shipSize, int shipDirection, int x, int y, string token)
+        [HttpGet("prepareGame")]
+        public async Task<ActionResult<IEnumerable<CellListViewModel>>> GetCells(string token)
         {
             var handler = new JwtSecurityTokenHandler();
             var jwtSecurityToken = handler.ReadJwtToken(token);
+            var username = jwtSecurityToken.Claims.First(claim => claim.Type == "unique_name").Value;
+            var playerId = _gameService.GetPlayerId(username);
+
+            var fieldId = _fieldService.GetFieldId(playerId);
+
+            var shipWrappers = _shipWrapperService.GetAllShipWrappersByFiedlId(fieldId);
+
+            var positions = _positionService.GetAllPoitionsByShipWrapperId(shipWrappers);
+
+            var cellsIds = _cellService.GetAllCellsIdByPositions(positions);
+
+            var cellList = _cellService.GetAllCellsByCellIds(cellsIds);
+
+            var cellListViewModels = new List<CellListViewModel>();
+
+            foreach (var cell in cellList)
+            {
+                cellListViewModels.Add(new CellListViewModel
+                {
+                    X = cell.X,
+                    Y = cell.Y,
+                    CellStateId = cell.CellStateId
+                });
+            }
+            return Ok(cellListViewModels);
+        }
+
+
+        [HttpPost("prepareGame/createShipOnField")]
+        public async Task<IActionResult> CreateShipOnField([FromBody] CreateShipViewModel model)
+        {
+            var handler = new JwtSecurityTokenHandler();
+            var jwtSecurityToken = handler.ReadJwtToken(model.Token);
             var username = jwtSecurityToken.Claims.First(claim => claim.Type == "unique_name").Value;
 
             var playerId = _gameService.GetPlayerId(username);
             var fieldId = _fieldService.GetFieldId(playerId);
 
-            var ship = new Ship { DirectionId = shipDirection, ShipStateId = 1, ShipSizeId = shipSize };
+            var numberOfShipsOnField = _shipWrapperService.GetNumberOfShips(fieldId);
+
+            if (numberOfShipsOnField == 0)
+            {
+                var defaultCells = _cellService.SetDefaultCells();
+
+                foreach (var cell in defaultCells)
+                {
+                    await Mediator.Send(new UpdateCell.Command { Cell = cell });
+                }
+
+                var defaultShipWrapper = _shipWrapperService.GetDefaultShipWrapper(fieldId);
+                await Mediator.Send(new CreateShipWrapper.Command { ShipWrapper = defaultShipWrapper });
+
+                var defaultPositions = _positionService.SetDefaultPositions(defaultShipWrapper.Id, defaultCells);
+
+                foreach (var position in defaultPositions)
+                {
+                    await Mediator.Send(new CreatePosition.Command { Position = position });
+                }
+            }
+
+            else if (numberOfShipsOnField == 10)
+            {
+                return BadRequest("There are already 10 ships on the field!");
+            }
+
+            switch (model.ShipSize)
+            {
+                case 1:
+                    if (_shipWrapperService.GetNumberOfShipsWhereSizeOne(fieldId) == 4)
+                    {
+                        return BadRequest("The maximum number of ships with the size 1 on the field is 4!");
+                    }
+                    break;
+                case 2:
+                    if (_shipWrapperService.GetNumberOfShipsWhereSizeTwo(fieldId) == 3)
+                    {
+                        return BadRequest("The maximum number of ships with the size 2 on the field is 3!");
+                    }
+                    break;
+                case 3:
+                    if (_shipWrapperService.GetNumberOfShipsWhereSizeThree(fieldId) == 2)
+                    {
+                        return BadRequest("The maximum number of ships with the size 3 on the field is 2!");
+                    }
+                    break;
+                case 4:
+                    if (_shipWrapperService.GetNumberOfShipsWhereSizeFour(fieldId) == 1)
+                    {
+                        return BadRequest("The maximum number of ships with the size 4 on the field is 1!");
+                    }
+                    break;
+            }
+
+            var ship = new Ship { DirectionId = model.ShipDirection, ShipStateId = 1, ShipSizeId = model.ShipSize };
 
             //add ship to Ship table
             await Mediator.Send(new CreateShip.Command { Ship = ship });
@@ -173,23 +259,29 @@ namespace WEB.Controllers
             //add shipWrapper to ShipWrapper table
             await Mediator.Send(new CreateShipWrapper.Command { ShipWrapper = shipWrapper });
 
-            var shipDirectionName = _directionService.GetDirectionName(shipDirection);
-            var cellList = _cellService.getAllCells(shipDirectionName, shipSize, x, y);
+            var shipDirectionName = _directionService.GetDirectionName(model.ShipDirection);
 
-            //add cells to Cell table
+            var cellList = _cellService.GetAllCells(shipDirectionName, model.ShipSize, model.X, model.Y, fieldId);
+
+            if (!cellList.Any())
+            {
+                await Mediator.Send(new DeleteShip.Command { Ship = ship });
+                return BadRequest("The place is occupied by another ship!");
+            }
+
             foreach (var cell in cellList)
             {
-                await Mediator.Send(new CreateCell.Command { Cell = cell });
-            }
+                //update cells in Cell table
+                var cellId = _cellService.GetCellId(cell.X, cell.Y);
+                var updateCell = new Cell { Id = cellId, X = cell.X, Y = cell.Y, CellStateId = cell.CellStateId };
+                await Mediator.Send(new UpdateCell.Command { Cell = updateCell });
 
-            var positionList = _positionService.GetAllPositions(shipWrapper.Id, cellList);
-
-            //add positions to Position table
-            foreach (var position in positionList)
-            {
-                await Mediator.Send(new CreatePosition.Command { Position = position });
+                //update positions in Position table
+                var positionId = _positionService.GetPositionId(cellId);
+                var updatePosition = new Position { Id = positionId, ShipWrapperId = shipWrapper.Id, CellId = cellId };
+                await Mediator.Send(new UpdatePosition.Command { Position = updatePosition });
             }
-            return Ok();
+            return Ok("Ship added successfully!");
         }
     }
 }

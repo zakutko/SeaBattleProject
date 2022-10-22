@@ -9,7 +9,7 @@ namespace DAL.Models
         [Key]
         public int Id { get; set; }
         [Column("shipId")]
-        public int ShipId { get; set; }
+        public int? ShipId { get; set; }
         [Column("fieldId")]
         public int FieldId { get; set; }
         public virtual Ship Ship { get; set; }

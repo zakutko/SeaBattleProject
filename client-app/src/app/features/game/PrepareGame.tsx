@@ -6,6 +6,7 @@ import FieldForm from "../field/FieldForm";
 import "./game.css";
 
 export default observer(function PrepareGame() {
+    
     return (
         <>
         <NavBar />

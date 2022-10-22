@@ -4,7 +4,10 @@ namespace BLL.Interfaces
 {
     public interface ICellService
     {
-        bool IsCellBusy(int x, int y);
-        List<Cell> getAllCells(string shipDirectionName, int shipSize, int x, int y);
+        IEnumerable<Cell> GetAllCells(string shipDirectionName, int shipSize, int x, int y, int fieldId);
+        IEnumerable<int> GetAllCellsIdByPositions(IEnumerable<Position> positions);
+        IEnumerable<Cell> GetAllCellsByCellIds(IEnumerable<int> cellIds);
+        IEnumerable<Cell> SetDefaultCells();
+        int GetCellId(int X, int Y);
     }
 }

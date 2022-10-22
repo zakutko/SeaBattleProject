@@ -26,21 +26,26 @@ namespace WEB.Extensions
             services.AddMediatR(typeof(List.Handler).Assembly);
             services.AddMediatR(typeof(CreateField.Handler).Assembly);
             services.AddMediatR(typeof(CreateGameField.Handler).Assembly);
-            services.AddMediatR(typeof(CreateCell.Handler).Assembly);
+            services.AddMediatR(typeof(UpdateCell.Handler).Assembly);
             services.AddMediatR(typeof(CreatePosition.Handler).Assembly);
             services.AddMediatR(typeof(CreateShip.Handler).Assembly);
+            services.AddMediatR(typeof(DeleteShip.Handler).Assembly);
             services.AddMediatR(typeof(CreateShipWrapper.Handler).Assembly);
+            services.AddMediatR(typeof(DeleteShipWrapper.Handler).Assembly);
 
             services.AddScoped<IAppUserRepository, AppUserRepository>();
+            services.AddScoped<IPositionRepository, PositionRepository>();
             services.AddScoped<IRepository<Game>, Repository<Game>>();
             services.AddScoped<IRepository<AppUser>, Repository<AppUser>>();
             services.AddScoped<IRepository<PlayerGame>, Repository<PlayerGame>>();
             services.AddScoped<IRepository<GameField>, Repository<GameField>>();
             services.AddScoped<IRepository<GameState>, Repository<GameState>>();
-            services.AddScoped<IRepository<Direction>, Repository<Direction>>();
+            services.AddScoped<IRepository<Direction>, Repository<Direction>>();    
             services.AddScoped<IRepository<Cell>, Repository<Cell>>();
             services.AddScoped<IRepository<Position>, Repository<Position>>();
             services.AddScoped<IRepository<Field>, Repository<Field>>();
+            services.AddScoped<IRepository<ShipWrapper>, Repository<ShipWrapper>>();
+            services.AddScoped<IRepository<Ship>, Repository<Ship>>();
 
             services.AddScoped<IGameService, GameService>();
             services.AddScoped<IPlayerService, PlayerService>();
@@ -51,6 +56,7 @@ namespace WEB.Extensions
             services.AddScoped<ICellService, CellService>();
             services.AddScoped<IPositionService, PositionService>();
             services.AddScoped<IFieldService, FieldService>();
+            services.AddScoped<IShipWrapperService, ShipWrapperService>();
 
             return services;
         }

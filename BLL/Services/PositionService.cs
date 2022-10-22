@@ -13,7 +13,29 @@ namespace BLL.Services
             _repository = repository;
         }
 
-        public List<Position> GetAllPositions(int shipWrapperId, List<Cell> cells)
+        public int GetPositionId(int shipWrapperId)
+        {
+            return _repository.GetAll().Where(x => x.ShipWrapperId == shipWrapperId).FirstOrDefault().Id;
+        }
+
+        public int GetPositionByCellId(int cellId)
+        {
+            return _repository.GetAll().Where(x => x.CellId == cellId).FirstOrDefault().Id;
+        }
+
+        public IEnumerable<Position> SetDefaultPositions(int shipWrapperId, IEnumerable<Cell> cells)
+        {
+            var positions = new List<Position>();
+
+            foreach (var cell in cells)
+            {
+                positions.Add(new Position { ShipWrapperId = shipWrapperId, CellId = cell.Id });
+            }
+
+            return positions;
+        }
+
+        public IEnumerable<Position> GetAllPositions(int shipWrapperId, IEnumerable<Cell> cells)
         {
             var positionList = new List<Position>();
 
@@ -23,6 +45,18 @@ namespace BLL.Services
             }
 
             return positionList;
+        }
+
+        public IEnumerable<Position> GetAllPoitionsByShipWrapperId(IEnumerable<ShipWrapper> shipWrappers)
+        {
+            var positions = new List<Position>();
+
+            foreach (var shipWrapper in shipWrappers)
+            {
+                positions.AddRange(_repository.GetAll().Where(x => x.ShipWrapperId == shipWrapper.Id));
+            }
+
+            return positions;
         }
     }
 }

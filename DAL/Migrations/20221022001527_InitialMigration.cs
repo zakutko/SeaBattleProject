@@ -381,7 +381,7 @@ namespace DAL.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    shipId = table.Column<int>(type: "int", nullable: false),
+                    shipId = table.Column<int>(type: "int", nullable: true),
                     fieldId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -397,8 +397,7 @@ namespace DAL.Migrations
                         name: "FK_ShipWrapper_Ship_shipId",
                         column: x => x.shipId,
                         principalTable: "Ship",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -539,14 +538,14 @@ namespace DAL.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_ShipWrapper_fieldId",
                 table: "ShipWrapper",
-                column: "fieldId",
-                unique: true);
+                column: "fieldId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ShipWrapper_shipId",
                 table: "ShipWrapper",
                 column: "shipId",
-                unique: true);
+                unique: true,
+                filter: "[shipId] IS NOT NULL");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

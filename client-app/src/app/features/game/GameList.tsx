@@ -5,6 +5,7 @@ import { Button, Label, Table } from "semantic-ui-react";
 import agent from "../../api/agent";
 import NavBar from "../../layout/NavBar";
 import { GameList } from "../../models/gameList";
+import "./game.css";
 
 export default observer(function GameList() {
     const [gameList, setGameList] = useState<GameList[]>([]);
