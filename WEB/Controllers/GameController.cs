@@ -181,7 +181,7 @@ namespace WEB.Controllers
                     CellStateId = cell.CellStateId
                 });
             }
-            return Ok(cellListViewModels);
+            return Ok(cellListViewModels.OrderBy(x => x.Id));
         }
 
 
@@ -273,15 +273,25 @@ namespace WEB.Controllers
 
             foreach (var cell in cellList)
             {
-                //update cells in Cell table
-                var cellId = _cellService.GetCellId(cell.X, cell.Y);
-                var updateCell = new Cell { Id = cellId, X = cell.X, Y = cell.Y, CellStateId = cell.CellStateId };
-                await Mediator.Send(new UpdateCell.Command { Cell = updateCell });
+                try
+                {
+                    var shipWrappers = _shipWrapperService.GetAllShipWrappersByFiedlId(fieldId);
+                    //update cells in Cell table
+                    var cellId = _cellService.GetCellId(cell.X, cell.Y, shipWrappers);
+                    var updateCell = new Cell { Id = cellId, X = cell.X, Y = cell.Y, CellStateId = cell.CellStateId };
+                    await Mediator.Send(new UpdateCell.Command { Cell = updateCell });
 
-                //update positions in Position table
-                var positionId = _positionService.GetPositionByCellId(cellId);
-                var updatePosition = new Position { Id = positionId, ShipWrapperId = shipWrapper.Id, CellId = cellId };
-                await Mediator.Send(new UpdatePosition.Command { Position = updatePosition });
+                    //update positions in Position table
+                    var positionId = _positionService.GetPositionByCellId(cellId);
+                    var updatePosition = new Position { Id = positionId, ShipWrapperId = shipWrapper.Id, CellId = cellId };
+                    await Mediator.Send(new UpdatePosition.Command { Position = updatePosition });
+                }
+                catch (Exception ex)
+                {
+                    await Mediator.Send(new DeleteShipWrapper.Command { ShipWrapper = shipWrapper });
+                    await Mediator.Send(new DeleteShip.Command { Ship = ship });
+                    return BadRequest(ex.Message);
+                }
             }
             return Ok("Ship added successfully!");
         }

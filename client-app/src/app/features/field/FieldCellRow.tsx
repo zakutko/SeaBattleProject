@@ -1,12 +1,12 @@
 import { observer } from "mobx-react"
-import { useEffect, useState } from "react"
+import { useState, useEffect } from "react"
 import agent from "../../api/agent"
 import { CellList } from "../../models/cellsList"
 import Cell from "./Cell"
 import CellNumber from "./CellNumber"
 import "./field.css"
 
-export default observer(function RowCell(props: any){
+export default observer(function FieldCellRow(props: any){
     const [cellList, setCellList] = useState<CellList[]>([]);
 
     useEffect(() => {
@@ -21,14 +21,14 @@ export default observer(function RowCell(props: any){
     return (
         <>
         <div className="rowCell">
-            <>
             <CellNumber number={props.number}/>
-            {cellList.map(cell => {
-                if (cell.y === props.Y){
-                    <Cell key={cell.id}/>
+            {cellList.map(cell => (
+                <>
+                {cell.y === props.Y && 
+                    <Cell cellState={cell.cellStateId}/>
                 }
-            })}
-            </>
+                </>
+            ))}
         </div>
         </>
     )

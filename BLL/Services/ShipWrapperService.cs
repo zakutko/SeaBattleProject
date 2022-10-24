@@ -22,12 +22,12 @@ namespace BLL.Services
 
         public int GetNumberOfShips(int fieldId)
         {
-            return _repository.GetAll().Where(x => x.FieldId == fieldId && x.ShipId != null).Count();
+            return _repository.GetAll().Result.Where(x => x.FieldId == fieldId && x.ShipId != null).Count();
         }
 
         public int GetNumberOfShipsWhereSizeOne(int fieldId)
         {
-            var shipWrapperList = _repository.GetAll().Where(x => x.FieldId == fieldId).ToList();
+            var shipWrapperList = _repository.GetAll().Result.Where(x => x.FieldId == fieldId && x.ShipId != null).ToList();
             var shipList = new List<Ship>();
 
             foreach(var shipWrapper in shipWrapperList)
@@ -37,7 +37,7 @@ namespace BLL.Services
                     return 0;
                 }
 
-                var ship = _shipRepository.GetById(shipWrapper.ShipId);
+                var ship = _shipRepository.GetById(shipWrapper.ShipId).Result;
 
                 if (ship.ShipSizeId == 1)
                 {
@@ -50,12 +50,12 @@ namespace BLL.Services
 
         public int GetNumberOfShipsWhereSizeTwo(int fieldId)
         {
-            var shipWrapperList = _repository.GetAll().Where(x => x.FieldId == fieldId && x.ShipId != null).ToList();
+            var shipWrapperList = _repository.GetAll().Result.Where(x => x.FieldId == fieldId && x.ShipId != null).ToList();
             var shipList = new List<Ship>();
 
             foreach (var shipWrapper in shipWrapperList)
             {
-                var ship = _shipRepository.GetById(shipWrapper.ShipId);
+                var ship = _shipRepository.GetById(shipWrapper.ShipId).Result;
                 if (ship.ShipSizeId == 2)
                 {
                     shipList.Add(ship);
@@ -67,12 +67,12 @@ namespace BLL.Services
 
         public int GetNumberOfShipsWhereSizeThree(int fieldId)
         {
-            var shipWrapperList = _repository.GetAll().Where(x => x.FieldId == fieldId).ToList();
+            var shipWrapperList = _repository.GetAll().Result.Where(x => x.FieldId == fieldId && x.ShipId != null).ToList();
             var shipList = new List<Ship>();
 
             foreach (var shipWrapper in shipWrapperList)
             {
-                var ship = _shipRepository.GetById(shipWrapper.ShipId);
+                var ship = _shipRepository.GetById(shipWrapper.ShipId).Result;
                 if (ship.ShipSizeId == 3)
                 {
                     shipList.Add(ship);
@@ -84,12 +84,12 @@ namespace BLL.Services
 
         public int GetNumberOfShipsWhereSizeFour(int fieldId)
         {
-            var shipWrapperList = _repository.GetAll().Where(x => x.FieldId == fieldId && x.ShipId != null).ToList();
+            var shipWrapperList = _repository.GetAll().Result.Where(x => x.FieldId == fieldId && x.ShipId != null).ToList();
             var shipList = new List<Ship>();
 
             foreach (var shipWrapper in shipWrapperList)
             {
-                var ship = _shipRepository.GetById(shipWrapper.ShipId);
+                var ship = _shipRepository.GetById(shipWrapper.ShipId).Result;
                 if (ship.ShipSizeId == 4)
                 {
                     shipList.Add(ship);
@@ -101,7 +101,7 @@ namespace BLL.Services
 
         public IEnumerable<ShipWrapper> GetAllShipWrappersByFiedlId(int fieldId)
         {
-            return _repository.GetAll().Where(x => x.FieldId == fieldId);
+            return _repository.GetAll().Result.Where(x => x.FieldId == fieldId);
         }
     }
 }

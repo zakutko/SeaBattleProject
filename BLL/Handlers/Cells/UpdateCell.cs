@@ -25,6 +25,9 @@ namespace BLL.Handlers.Cells
                 _context.ChangeTracker.Clear();
                 _context.Cells.Update(request.Cell);
 
+                var cells = _context.Cells.ToList();
+                cells.OrderBy(x => x.Id);
+
                 await _context.SaveChangesAsync();
 
                 return Unit.Value;

@@ -7,6 +7,14 @@
     margin-right: -2px;
 }
 
+.cellGreen {
+    background-color: green;
+}
+
+.cellGrey {
+    background-color: grey;
+}
+
 .rowCell {
     margin-bottom: -8px;
 }

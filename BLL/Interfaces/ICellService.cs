@@ -8,6 +8,6 @@ namespace BLL.Interfaces
         IEnumerable<int> GetAllCellsIdByPositions(IEnumerable<Position> positions);
         IEnumerable<Cell> GetAllCellsByCellIds(IEnumerable<int> cellIds);
         IEnumerable<Cell> SetDefaultCells();
-        int GetCellId(int X, int Y);
+        int GetCellId(int X, int Y, IEnumerable<ShipWrapper> shipWrappers);
     }
 }

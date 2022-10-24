@@ -15,7 +15,7 @@ namespace BLL.Services
 
         public int GetFieldId(string playerId)
         {
-            return _repository.GetAll().Where(x => x.PlayerId == playerId).FirstOrDefault().Id;
+            return _repository.GetAll().Result.Where(x => x.PlayerId == playerId).FirstOrDefault().Id;
         }
     }
 }

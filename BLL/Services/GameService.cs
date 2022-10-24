@@ -16,7 +16,7 @@ namespace BLL.Services
 
         public IEnumerable<Game> GetGames()
         {
-            var result = _repository.GetAll();
+            var result = _repository.GetAll().Result;
 
             if (!result.Any())
             {
@@ -28,7 +28,7 @@ namespace BLL.Services
 
         public Game GetGame(int id)
         {
-            var result = _repository.GetById(id);
+            var result = _repository.GetById(id).Result;
 
             if (result == null) 
             {

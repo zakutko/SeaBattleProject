@@ -15,7 +15,7 @@ namespace BLL.Services
 
         public int GetFirstFieldId(int id)
         {
-            var gameField = _repository.GetById(id);
+            var gameField = _repository.GetById(id).Result;
             var firstFieldId = gameField.FirstFieldId;
 
             return (int)firstFieldId;
@@ -23,7 +23,7 @@ namespace BLL.Services
 
         public int GetGameFieldId(int id, int firstField)
         {
-            var gameField = _repository.GetAll().Where(x => x.GameId == id && x.FirstFieldId == firstField);
+            var gameField = _repository.GetAll().Result.Where(x => x.GameId == id && x.FirstFieldId == firstField);
             var gameFieldId = gameField.FirstOrDefault().Id;
 
             return gameFieldId;

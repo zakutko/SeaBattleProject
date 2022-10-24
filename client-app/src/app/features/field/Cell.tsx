@@ -3,8 +3,16 @@ import "./field.css";
 
 export default observer(function Cell(props: any) {
     return (
-        <div className="cell" >
-            <p>{props.cellState}</p>
-        </div>
+        <>
+        {props.cellState === 1 &&
+            <div className="cell"></div>
+        }
+        {props.cellState === 2 && 
+            <div className="cell cellGreen"></div>
+        }
+        {props.cellState === 5 &&
+            <div className="cell cellGrey"></div>
+        } 
+        </>
     )
 })

@@ -1,25 +1,23 @@
 import { observer } from "mobx-react";
-import RowCell from "./RowCell";
 import "./field.css";
 import RowCellNumber from "./RowCellNumber";
+import FieldCellRow from "./FieldCellRow";
 
 export default observer(function FieldCell(){
     
     return (
         <>
-            <div className="field">
-            <RowCellNumber />
-            <RowCell number='1' Y={1}/>
-            <RowCell number='2' Y={2}/>
-            <RowCell number='3' Y={3}/>
-            <RowCell number='4' Y={4}/>
-            <RowCell number='5' Y={5}/>
-            <RowCell number='6' Y={6}/>
-            <RowCell number='7' Y={7}/>
-            <RowCell number='8' Y={8}/>
-            <RowCell number='9' Y={9}/>
-            <RowCell number='10' Y={10}/>
-        </div>
+        <RowCellNumber />
+        <FieldCellRow Y={1} number={1}/>
+        <FieldCellRow Y={2} number={2}/>
+        <FieldCellRow Y={3} number={3}/>
+        <FieldCellRow Y={4} number={4}/>
+        <FieldCellRow Y={5} number={5}/>
+        <FieldCellRow Y={6} number={6}/>
+        <FieldCellRow Y={7} number={7}/>
+        <FieldCellRow Y={8} number={8}/>
+        <FieldCellRow Y={9} number={9}/>
+        <FieldCellRow Y={10} number={10}/>
         </>
     )
 })

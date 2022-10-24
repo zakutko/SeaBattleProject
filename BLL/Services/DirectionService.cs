@@ -15,7 +15,7 @@ namespace BLL.Services
 
         public string GetDirectionName(int id)
         {
-            return _repository.GetById(id).DirectionName;
+            return _repository.GetById(id).Result.DirectionName;
         }
     }
 }

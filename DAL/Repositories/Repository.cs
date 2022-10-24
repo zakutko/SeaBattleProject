@@ -1,5 +1,6 @@
 ﻿using DAL.Data;
 using DAL.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace DAL.Repositories
 {
@@ -11,19 +12,19 @@ namespace DAL.Repositories
             _context = context;
         }
 
-        public T GetById(int? id)
+        public async Task<T> GetById(int? id)
         {
-            return _context.Set<T>().Find(id);
+            return await _context.Set<T>().FindAsync(id);
         }
 
-        public T GetById(string id)
+        public async Task<T> GetById(string id)
         {
-            return _context.Set<T>().Find(id);
+            return await _context.Set<T>().FindAsync(id);
         }
 
-        public IEnumerable<T> GetAll()
+        public async Task<IEnumerable<T>> GetAll()
         {
-            return _context.Set<T>().ToList();
+            return await _context.Set<T>().ToListAsync();
         }
 
         public void Delete(T entity)

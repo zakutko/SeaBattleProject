@@ -14,7 +14,7 @@ namespace BLL.Services
         }
         public AppUser GetPlayer(string id)
         {
-            return _repository.GetById(id);
+            return _repository.GetById(id).Result;
         }
     }
 }

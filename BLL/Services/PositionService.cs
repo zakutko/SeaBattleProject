@@ -15,12 +15,12 @@ namespace BLL.Services
 
         public int GetPositionId(int shipWrapperId)
         {
-            return _repository.GetAll().Where(x => x.ShipWrapperId == shipWrapperId).FirstOrDefault().Id;
+            return _repository.GetAll().Result.Where(x => x.ShipWrapperId == shipWrapperId).FirstOrDefault().Id;
         }
 
         public int GetPositionByCellId(int cellId)
         {
-            return _repository.GetAll().Where(x => x.CellId == cellId).FirstOrDefault().Id;
+            return _repository.GetAll().Result.Where(x => x.CellId == cellId).FirstOrDefault().Id;
         }
 
         public IEnumerable<Position> SetDefaultPositions(int shipWrapperId, IEnumerable<Cell> cells)
@@ -53,7 +53,7 @@ namespace BLL.Services
 
             foreach (var shipWrapper in shipWrappers)
             {
-                positions.AddRange(_repository.GetAll().Where(x => x.ShipWrapperId == shipWrapper.Id));
+                positions.AddRange(_repository.GetAll().Result.Where(x => x.ShipWrapperId == shipWrapper.Id));
             }
 
             return positions;

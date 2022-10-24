@@ -15,7 +15,7 @@ namespace BLL.Services
 
         public string GetGameState(int id)
         {
-            var gameState = _repository.GetById(id);
+            var gameState = _repository.GetById(id).Result;
 
             return gameState.GameStateName;
         }

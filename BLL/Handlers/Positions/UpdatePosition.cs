@@ -30,6 +30,9 @@ namespace BLL.Handlers.Positions
                 _context.ChangeTracker.Clear();
                 _context.Positions.Update(request.Position);
 
+                var positions = _context.Positions.ToList();
+                positions.OrderBy(x => x.Id);
+
                 await _context.SaveChangesAsync();
 
                 return Unit.Value;
