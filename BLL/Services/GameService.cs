@@ -7,11 +7,9 @@ namespace BLL.Services
     public class GameService : IGameService
     {
         private readonly IRepository<Game> _repository;
-        private readonly IAppUserRepository _appUserRepository;
-        public GameService(IRepository<Game> repository, IAppUserRepository appUserRepository)
+        public GameService(IRepository<Game> repository)
         {
             _repository = repository;
-            _appUserRepository = appUserRepository;
         }
 
         public IEnumerable<Game> GetGames()
@@ -36,13 +34,6 @@ namespace BLL.Services
             }
 
             return result;
-        }
-
-        public string GetPlayerId(string username)
-        {
-            var player = _appUserRepository.GetByUsername(username);
-
-            return player.Id;
         }
     }
 }

@@ -6,6 +6,5 @@ namespace BLL.Interfaces
     {
         IEnumerable<Game> GetGames();
         Game GetGame(int id);
-        string GetPlayerId(string username);
     }
 }

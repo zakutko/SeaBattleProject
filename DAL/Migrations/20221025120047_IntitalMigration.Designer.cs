@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DAL.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20221022001527_InitialMigration")]
-    partial class InitialMigration
+    [Migration("20221025120047_IntitalMigration")]
+    partial class IntitalMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -263,6 +263,14 @@ namespace DAL.Migrations
                     b.Property<int>("GameId")
                         .HasColumnType("int")
                         .HasColumnName("gameId");
+
+                    b.Property<bool?>("IsReadyFirstPlayer")
+                        .HasColumnType("bit")
+                        .HasColumnName("isReadyFirstPlayer");
+
+                    b.Property<bool?>("IsReadySecondPlayer")
+                        .HasColumnType("bit")
+                        .HasColumnName("isReadySecondPlayer");
 
                     b.Property<string>("SecondPlayerId")
                         .HasColumnType("nvarchar(450)")

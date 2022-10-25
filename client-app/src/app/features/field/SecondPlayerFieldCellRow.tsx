@@ -1,18 +1,17 @@
-import { observer } from "mobx-react"
-import { useState, useEffect } from "react"
-import agent from "../../api/agent"
-import { CellList } from "../../models/cellsList"
-import Cell from "./Cell"
-import CellNumber from "./CellNumber"
-import "./field.css"
+import { observer } from "mobx-react";
+import { useState, useEffect } from "react";
+import agent from "../../api/agent";
+import { CellList } from "../../models/cellsList";
+import CellNumber from "./CellNumber";
+import SecondPlayerCell from "./SecondPlayerCell";
 
-export default observer(function FieldCellRow(props: any){
+export default observer(function SecondPlayerFieldCellRow(props: any){
     const [cellList, setCellList] = useState<CellList[]>([]);
 
     useEffect(() => {
         const token = localStorage.getItem('token');
         if (token){
-            agent.Games.cells(token).then(response => {
+            agent.Games.secondPlayerCells(token).then(response => {
                 setCellList(response);
             });
         }
@@ -25,7 +24,7 @@ export default observer(function FieldCellRow(props: any){
             {cellList.map(cell => (
                 <>
                 {cell.y === props.Y && 
-                    <Cell key={cell.id} cellState={cell.cellStateId}/>
+                    <SecondPlayerCell cellState={cell.cellStateId}/>
                 }
                 </>
             ))}

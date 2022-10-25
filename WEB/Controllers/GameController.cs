@@ -107,7 +107,7 @@ namespace WEB.Controllers
 
             var username = jwtSecurityToken.Claims.First(claim => claim.Type == "unique_name").Value;
 
-            var playerId = _gameService.GetPlayerId(username);
+            var playerId = _playerService.GetPlayerId(username);
             var playerGame = new PlayerGame { GameId = game.Id, FirstPlayerId = playerId };
             await Mediator.Send(new CreatePlayerGame.Command { PlayerGame = playerGame });
 
@@ -126,7 +126,7 @@ namespace WEB.Controllers
             var jwtSecurityToken = handler.ReadJwtToken(token);
 
             var username = jwtSecurityToken.Claims.First(claim => claim.Type == "unique_name").Value;
-            var secondPlayerId = _gameService.GetPlayerId(username);
+            var secondPlayerId = _playerService.GetPlayerId(username);
             var firstPlayerId = _playerGameService.GetFirstPlayerId(gameId);
             var playerGameId = _playerGameService.GetPlayerGameId(gameId, firstPlayerId);
             var firstFieldId = _gameFieldService.GetFirstFieldId(gameId);
@@ -157,7 +157,7 @@ namespace WEB.Controllers
             var handler = new JwtSecurityTokenHandler();
             var jwtSecurityToken = handler.ReadJwtToken(token);
             var username = jwtSecurityToken.Claims.First(claim => claim.Type == "unique_name").Value;
-            var playerId = _gameService.GetPlayerId(username);
+            var playerId = _playerService.GetPlayerId(username);
 
             var fieldId = _fieldService.GetFieldId(playerId);
 
@@ -184,7 +184,6 @@ namespace WEB.Controllers
             return Ok(cellListViewModels.OrderBy(x => x.Id));
         }
 
-
         [HttpPost("prepareGame/createShipOnField")]
         public async Task<IActionResult> CreateShipOnField([FromBody] CreateShipViewModel model)
         {
@@ -192,7 +191,7 @@ namespace WEB.Controllers
             var jwtSecurityToken = handler.ReadJwtToken(model.Token);
             var username = jwtSecurityToken.Claims.First(claim => claim.Type == "unique_name").Value;
 
-            var playerId = _gameService.GetPlayerId(username);
+            var playerId = _playerService.GetPlayerId(username);
             var fieldId = _fieldService.GetFieldId(playerId);
 
             var numberOfShipsOnField = _shipWrapperService.GetNumberOfShips(fieldId);
@@ -294,6 +293,60 @@ namespace WEB.Controllers
                 }
             }
             return Ok("Ship added successfully!");
+        }
+
+        [HttpGet("numberOfReadyPlayers")]
+        public async Task<ActionResult<IsReadyViewModel>> IsTwoPlayersReady(string token)
+        {
+            var handler = new JwtSecurityTokenHandler();
+            var jwtSecurityToken = handler.ReadJwtToken(token);
+            var username = jwtSecurityToken.Claims.First(claim => claim.Type == "unique_name").Value;
+            var firstPlayerId = _playerService.GetPlayerId(username);
+            var secondPlayerId = _playerGameService.GetSecondPlayerId(firstPlayerId);
+
+            var playerGame = _playerGameService.GetPlayerGame(firstPlayerId, secondPlayerId);
+            var newPlayerGame = _playerGameService.CreateNewPlayerGame(playerGame);
+
+            await Mediator.Send(new UpdatePlayerGame.Command { PlayerGame = newPlayerGame });
+
+            var numberOfReadyPlayers = _playerGameService.GetNumberOfReadyPlayers(firstPlayerId, secondPlayerId);
+            var isReadyViewModel = new IsReadyViewModel { NumberOfReadyPlayers = numberOfReadyPlayers};
+            return Ok(isReadyViewModel);
+        }
+
+        [HttpGet("game/secondPlayerCells")]
+        public async Task<ActionResult<IEnumerable<CellListViewModel>>> GetAllCellsForGame(string token)
+        {
+            var handler = new JwtSecurityTokenHandler();
+            var jwtSecurityToken = handler.ReadJwtToken(token);
+            var username = jwtSecurityToken.Claims.First(claim => claim.Type == "unique_name").Value;
+            var firstPlayerId = _playerService.GetPlayerId(username);
+
+            var secondPlayerId = _playerGameService.GetSecondPlayerId(firstPlayerId);
+
+            var fieldId = _fieldService.GetFieldId(secondPlayerId);
+
+            var shipWrappers = _shipWrapperService.GetAllShipWrappersByFiedlId(fieldId);
+
+            var positions = _positionService.GetAllPoitionsByShipWrapperId(shipWrappers);
+
+            var cellsIds = _cellService.GetAllCellsIdByPositions(positions);
+
+            var cellList = _cellService.GetAllCellsByCellIds(cellsIds);
+
+            var cellListViewModels = new List<CellListViewModel>();
+
+            foreach (var cell in cellList)
+            {
+                cellListViewModels.Add(new CellListViewModel
+                {
+                    Id = cell.Id,
+                    X = cell.X,
+                    Y = cell.Y,
+                    CellStateId = cell.CellStateId
+                });
+            }
+            return Ok(cellListViewModels.OrderBy(x => x.Id));
         }
     }
 }

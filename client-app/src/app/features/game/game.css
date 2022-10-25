@@ -1,12 +1,8 @@
 .prepareGame {
-    padding-top: 80px;
+    padding-top: 50px;
     margin-bottom: 40px;
     display: flex;
     justify-content: space-between;
-}
-
-.field {
-    margin-right: 20px;
 }
 
 .fieldForm {
@@ -31,4 +27,42 @@
 
 .gameList {
     padding-top: 160px;
+}
+
+.game {
+    padding-top: 20px;
+    margin-bottom: 40px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.help-colors {
+    padding-top: 20px;
+    display: flex;
+    justify-content: space-around;
+}
+
+.block {
+    width: 75px;
+    height: 30px;
+    border: 1px solid black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.block p {
+    color: white;
+}
+
+.color-purple {
+    background-color: purple;
+}
+
+.color-orange {
+    background-color: orange;
+}
+
+.color-red {
+    background-color: red;
 }

@@ -41,5 +41,73 @@ namespace BLL.Services
 
             return playerGameId;
         }
+
+        public string GetSecondPlayerId(string firstPlayerId)
+        {
+            var playerGame = _repository.GetAll().Result.Where(x => x.FirstPlayerId == firstPlayerId && x.SecondPlayerId != null || x.SecondPlayerId == firstPlayerId && x.FirstPlayerId != null).FirstOrDefault();
+
+            if (playerGame == null) 
+            {
+                throw new Exception("The second player has not connected yet!");
+            }
+            if (playerGame.FirstPlayerId == firstPlayerId)
+            {
+                return playerGame.SecondPlayerId;
+            }
+            return playerGame.FirstPlayerId;
+        }
+        
+        public int GetNumberOfReadyPlayers(string firstPlayerId, string secondPlayerId)
+        {
+            var playerGame = _repository.GetAll().Result.Where(x => 
+            x.FirstPlayerId == firstPlayerId && x.SecondPlayerId == secondPlayerId ||
+            x.FirstPlayerId == secondPlayerId && x.SecondPlayerId == firstPlayerId
+            ).FirstOrDefault();
+
+            if (playerGame.IsReadyFirstPlayer == null && playerGame.IsReadySecondPlayer == null)
+            {
+                return 0;
+            }
+            else if (playerGame.IsReadyFirstPlayer != null && playerGame.IsReadySecondPlayer == null || playerGame.IsReadyFirstPlayer == null && playerGame.IsReadySecondPlayer != null)
+            {
+                return 1;
+            }
+            return 2;
+        }
+
+        public PlayerGame GetPlayerGame(string firstPlayerId, string secondPlayerId)
+        {
+            return _repository.GetAll().Result.Where(x => 
+                x.FirstPlayerId == firstPlayerId && x.SecondPlayerId == secondPlayerId ||
+                x.FirstPlayerId == secondPlayerId && x.SecondPlayerId == firstPlayerId
+                ).FirstOrDefault();   
+        }
+
+        public PlayerGame CreateNewPlayerGame(PlayerGame playerGame)
+        {
+            if (playerGame.IsReadyFirstPlayer == null && playerGame.IsReadySecondPlayer == null)
+            {
+                return new PlayerGame
+                {
+                    Id = playerGame.Id,
+                    GameId = playerGame.GameId,
+                    FirstPlayerId = playerGame.FirstPlayerId,
+                    SecondPlayerId = playerGame.SecondPlayerId,
+                    IsReadyFirstPlayer = true,
+                };
+            }
+            else
+            {
+                return new PlayerGame
+                {
+                    Id = playerGame.Id,
+                    GameId = playerGame.GameId,
+                    FirstPlayerId = playerGame.FirstPlayerId,
+                    SecondPlayerId = playerGame.SecondPlayerId,
+                    IsReadyFirstPlayer = true,
+                    IsReadySecondPlayer = true
+                };
+            }
+        }
     }
 }

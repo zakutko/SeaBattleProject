@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace DAL.Migrations
 {
-    public partial class InitialMigration : Migration
+    public partial class IntitalMigration : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -352,7 +352,9 @@ namespace DAL.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     gameId = table.Column<int>(type: "int", nullable: false),
                     firstPlayerId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    secondPlayerId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                    secondPlayerId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    isReadyFirstPlayer = table.Column<bool>(type: "bit", nullable: true),
+                    isReadySecondPlayer = table.Column<bool>(type: "bit", nullable: true)
                 },
                 constraints: table =>
                 {

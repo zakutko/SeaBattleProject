@@ -186,17 +186,28 @@ namespace BLL.Services
                         newCells.AddRange(newArroundList);
                     }
 
-                    var allCellsWithStateNoEmpty = _repository.GetAll().Result.Where(x => x.CellStateId == 2 || x.CellStateId == 5);
-                    foreach (var cell in allCellsWithStateNoEmpty)
+                    else
                     {
-                        if (newCell.X == cell.X && newCell.Y == cell.Y)
+                        var allCellsWithStateNoEmpty = cells.Where(x => x.CellStateId == 2 || x.CellStateId == 5);
+                        var isMatches = false;
+                        foreach (var cell in allCellsWithStateNoEmpty)
+                        {
+                            if (newCell.X == cell.X && newCell.Y == cell.Y)
+                            {
+                                isMatches = true;
+                                break;
+                            }
+                        }
+                        if (isMatches)
                         {
                             aroundNewCells.Clear();
                             newCells.Clear();
-                            break;
                         }
-                        newCells.AddRange(newArroundList);
-                        newCells.Add(newCell);
+                        else
+                        {
+                            newCells.AddRange(newArroundList);
+                            newCells.Add(newCell);
+                        }
                     }
                 }
 
@@ -288,7 +299,7 @@ namespace BLL.Services
                     }
                     else
                     {
-                        var allCellsWithStateNoEmpty = _repository.GetAll().Result.Where(x => x.CellStateId == 2 || x.CellStateId == 5);
+                        var allCellsWithStateNoEmpty = cells.Where(x => x.CellStateId == 2 || x.CellStateId == 5);
                         var isMatches = false;
                         foreach (var cell in allCellsWithStateNoEmpty)
                         {

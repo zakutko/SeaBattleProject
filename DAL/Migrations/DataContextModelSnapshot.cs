@@ -262,6 +262,14 @@ namespace DAL.Migrations
                         .HasColumnType("int")
                         .HasColumnName("gameId");
 
+                    b.Property<bool?>("IsReadyFirstPlayer")
+                        .HasColumnType("bit")
+                        .HasColumnName("isReadyFirstPlayer");
+
+                    b.Property<bool?>("IsReadySecondPlayer")
+                        .HasColumnType("bit")
+                        .HasColumnName("isReadySecondPlayer");
+
                     b.Property<string>("SecondPlayerId")
                         .HasColumnType("nvarchar(450)")
                         .HasColumnName("secondPlayerId");

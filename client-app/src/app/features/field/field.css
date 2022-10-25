@@ -15,6 +15,18 @@
     background-color: grey;
 }
 
+.cellOrange {
+    background-color: orange;
+}
+
+.cellPurple {
+    background-color: purple;
+}
+
+.cellRed {
+    background-color: red;
+}
+
 .rowCell {
     margin-bottom: -8px;
 }
