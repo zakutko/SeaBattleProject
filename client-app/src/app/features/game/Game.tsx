@@ -3,8 +3,23 @@ import FieldCell from "../field/FieldCell";
 import SecondPlayerFieldCell from "../field/SecondPlayerFieldCell";
 import "./game.css";
 import "../field/field.css";
+import { useEffect, useState } from "react";
+import agent from "../../api/agent";
+import GameFieldForm from "./GameFieldForm";
 
 export default observer(function Game(){
+    const [numberOfReadyPlayers, setNumberOfReadyPlayers] = useState(0);
+
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            agent.Games.numberOfReadyPlayers(token).then(response => {
+                setNumberOfReadyPlayers(response.numberOfReadyPlayers);
+            });
+        }
+        console.log(numberOfReadyPlayers);
+    })
+
     return (
         <>
         <div className="help-colors">
@@ -27,7 +42,12 @@ export default observer(function Game(){
             </div>
         </div>
         <div className="gameFieldForm">
-            
+            {numberOfReadyPlayers === 1 && 
+                <h1>Waiting an opponent!</h1>
+            }
+            {numberOfReadyPlayers === 2 &&
+                <GameFieldForm />
+            }
         </div>
         </>
     )

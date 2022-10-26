@@ -55,6 +55,10 @@ namespace DAL
                     new CellState
                     {
                         CellStateName = "AroundTheShip"
+                    },
+                    new CellState
+                    {
+                        CellStateName = "Destroyed"
                     }
                 };
 

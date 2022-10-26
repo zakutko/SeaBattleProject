@@ -9,5 +9,8 @@ namespace BLL.Interfaces
         IEnumerable<Cell> GetAllCellsByCellIds(IEnumerable<int> cellIds);
         IEnumerable<Cell> SetDefaultCells();
         int GetCellId(int X, int Y, IEnumerable<ShipWrapper> shipWrappers);
+        Cell CreateNewCell(int id, int x, int y, int cellStateId, bool isDestroyed);
+        Cell GetCell(int x, int y, IEnumerable<Cell> cells);
+        bool CheckIfTheShipIsDestroyed(IEnumerable<Cell> cells);
     }
 }

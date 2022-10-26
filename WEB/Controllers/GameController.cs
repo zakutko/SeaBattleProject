@@ -295,7 +295,31 @@ namespace WEB.Controllers
             return Ok("Ship added successfully!");
         }
 
-        [HttpGet("numberOfReadyPlayers")]
+        [HttpGet("isPlayerReady")]
+        public async Task<IActionResult> IsPlayerReady(string token)
+        {
+            var handler = new JwtSecurityTokenHandler();
+            var jwtSecurityToken = handler.ReadJwtToken(token);
+            var username = jwtSecurityToken.Claims.First(claim => claim.Type == "unique_name").Value;
+            var firstPlayerId = _playerService.GetPlayerId(username);
+
+            var fieldId = _fieldService.GetFieldId(firstPlayerId);
+            var shipWrappers = _shipWrapperService.GetAllShipWrappersByFiedlId(fieldId);
+            if (shipWrappers.Count() < 10)
+            {
+                return BadRequest("Number of ships must be 10!");
+            }
+            var secondPlayerId = _playerGameService.GetSecondPlayerId(firstPlayerId);
+
+            var playerGame = _playerGameService.GetPlayerGame(firstPlayerId, secondPlayerId);
+            var newPlayerGame = _playerGameService.CreateNewPlayerGame(playerGame);
+
+            await Mediator.Send(new UpdatePlayerGame.Command { PlayerGame = newPlayerGame });
+
+            return Ok("Player is ready!");
+        }
+
+        [HttpGet("isTwoPlayersReady")]
         public async Task<ActionResult<IsReadyViewModel>> IsTwoPlayersReady(string token)
         {
             var handler = new JwtSecurityTokenHandler();
@@ -304,13 +328,8 @@ namespace WEB.Controllers
             var firstPlayerId = _playerService.GetPlayerId(username);
             var secondPlayerId = _playerGameService.GetSecondPlayerId(firstPlayerId);
 
-            var playerGame = _playerGameService.GetPlayerGame(firstPlayerId, secondPlayerId);
-            var newPlayerGame = _playerGameService.CreateNewPlayerGame(playerGame);
-
-            await Mediator.Send(new UpdatePlayerGame.Command { PlayerGame = newPlayerGame });
-
             var numberOfReadyPlayers = _playerGameService.GetNumberOfReadyPlayers(firstPlayerId, secondPlayerId);
-            var isReadyViewModel = new IsReadyViewModel { NumberOfReadyPlayers = numberOfReadyPlayers};
+            var isReadyViewModel = new IsReadyViewModel { NumberOfReadyPlayers = numberOfReadyPlayers };
             return Ok(isReadyViewModel);
         }
 
@@ -347,6 +366,51 @@ namespace WEB.Controllers
                 });
             }
             return Ok(cellListViewModels.OrderBy(x => x.Id));
+        }
+
+        [HttpPost("game/fire")]
+        public async Task<IActionResult> Shoot([FromBody] ShootViewModel model)
+        {
+            var handler = new JwtSecurityTokenHandler();
+            var jwtSecurityToken = handler.ReadJwtToken(model.Token);
+            var username = jwtSecurityToken.Claims.First(claim => claim.Type == "unique_name").Value;
+            var firstPlayerId = _playerService.GetPlayerId(username);
+
+            var secondPlayerId = _playerGameService.GetSecondPlayerId(firstPlayerId);
+            var fieldId = _fieldService.GetFieldId(secondPlayerId);
+            var shipWrappers = _shipWrapperService.GetAllShipWrappersByFiedlId(fieldId);
+            var positions = _positionService.GetAllPoitionsByShipWrapperId(shipWrappers);
+            var cellsIds = _cellService.GetAllCellsIdByPositions(positions);
+            var cellList = _cellService.GetAllCellsByCellIds(cellsIds);
+            var cell = _cellService.GetCell(model.X, model.Y, cellList);
+
+            if (cell.CellStateId == 1 || cell.CellStateId == 5)
+            {
+                var newCell = _cellService.CreateNewCell(cell.Id, cell.X, cell.Y, cell.CellStateId, false);
+                await Mediator.Send(new UpdateCell.Command { Cell = newCell });
+                return Ok("Shoot fired successfully!");
+            }
+            else
+            {
+                var shipWrapperId = _positionService.GetShipWrapperIdByCellId(cell.Id);
+                var positionsByShipWrapperId = _positionService.GetAllPoitionsByShipWrapperId(shipWrapperId);
+                var cellIds = _positionService.GetAllCellIdsByPositions(positionsByShipWrapperId);
+                var cellsByCellIds = _cellService.GetAllCellsByCellIds(cellIds);
+                var isDestroyed = _cellService.CheckIfTheShipIsDestroyed(cellsByCellIds);
+                var newCell = _cellService.CreateNewCell(cell.Id, cell.X, cell.Y, cell.CellStateId, false);
+                await Mediator.Send(new UpdateCell.Command { Cell = newCell });
+
+                if (isDestroyed)
+                {
+                    foreach (var cellByCellId in cellsByCellIds)
+                    {
+                        var newCellBtCellId = _cellService.CreateNewCell(cellByCellId.Id, cellByCellId.X, cellByCellId.Y, cellByCellId.CellStateId, isDestroyed);
+                        await Mediator.Send(new UpdateCell.Command { Cell = newCellBtCellId });
+                    }
+                    return Ok("Shoot fired successfully!");
+                }
+                return Ok("Shoot fired successfully!");
+            }
         }
     }
 }

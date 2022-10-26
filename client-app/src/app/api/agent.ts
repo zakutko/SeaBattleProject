@@ -1,8 +1,10 @@
 import axios, { AxiosResponse } from "axios";
 import { CellList } from "../models/cellsList";
 import { GameList } from "../models/gameList";
+import { IsPlayerReady } from "../models/isPlayerReady";
 import { IsTwoPlayersReady } from "../models/isTwoPlayersReady";
 import { Ship, ShipFormValues } from "../models/ship";
+import { ShootFormValues } from "../models/shoot";
 import { User, UserFormValues } from "../models/user";
 import { store } from "../stores/store";
 
@@ -25,8 +27,10 @@ const Games = {
     joinSecondPlayer: (id: number, token: string) => request.get<void>(`Game/joinSecondPlayer?gameId=${id}&&token=${token}`),
     createShipOnField: (ship: ShipFormValues) => request.post<Ship>('/Game/prepareGame/createShipOnField', ship),
     cells: (token: string) => request.get<CellList[]>(`/Game/prepareGame?token=${token}`),
-    numberOfReadyPlayers: (token: string) => request.get<IsTwoPlayersReady>(`/Game/numberOfReadyPlayers?token=${token}`),
+    numberOfReadyPlayers: (token: string) => request.get<IsTwoPlayersReady>(`/Game/isTwoPlayersReady?token=${token}`),
+    firstPlayerReady: (token: string) => request.get<IsPlayerReady>(`/Game/isPlayerReady?token=${token}`),
     secondPlayerCells: (token: string) => request.get<CellList[]>(`/Game/game/secondPlayerCells?token=${token}`),
+    fire: (shoot: ShootFormValues) => request.post<void>('Game/game/fire', shoot),
 }
 
 const Account = {

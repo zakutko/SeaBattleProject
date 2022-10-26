@@ -324,5 +324,58 @@ namespace BLL.Services
             }
             return newCells;
         }
+
+        public Cell CreateNewCell(int id, int x, int y, int cellStateId, bool isDestroyed)
+        {
+            if (isDestroyed)
+            {
+                switch (cellStateId)
+                {
+                    case 2:
+                        return new Cell { Id = id, X = x, Y = y, CellStateId = 6 };
+                    case 3:
+                        return new Cell { Id = id, X = x, Y = y, CellStateId = 6 };
+                    default:
+                        return new Cell { Id = id, X = x, Y = y, CellStateId = cellStateId };
+                }
+            }
+            switch (cellStateId)
+            {
+                case 1:
+                    return new Cell { Id = id, X = x, Y = y, CellStateId = 4 };
+                case 2:
+                    return new Cell { Id = id, X = x, Y = y, CellStateId = 3 };
+                case 5:
+                    return new Cell { Id = id, X = x, Y = y, CellStateId = 4 };
+                default:
+                    return new Cell { Id = id, X = x, Y = y, CellStateId = cellStateId };
+            }
+        }
+
+        public Cell GetCell(int x, int y, IEnumerable<Cell> cells)
+        {
+            var myCell = new Cell();
+            foreach(var cell in cells)
+            {
+                if (cell.X == x && cell.Y == y)
+                {
+                    myCell = cell; 
+                    break;
+                }
+            }
+            return myCell;
+        }
+
+        public bool CheckIfTheShipIsDestroyed(IEnumerable<Cell> cells)
+        {
+            var numberOfCellsWithStateBusy = cells.Where(x => x.CellStateId == 2).Count();
+
+            if (numberOfCellsWithStateBusy == 1 || numberOfCellsWithStateBusy == 0)
+            {
+                return true;
+            }
+
+            return false;
+        }
     }
 }
