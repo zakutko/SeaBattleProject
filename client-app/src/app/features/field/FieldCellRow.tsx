@@ -25,7 +25,7 @@ export default observer(function FieldCellRow(props: any){
             {cellList.map(cell => (
                 <>
                 {cell.y === props.Y && 
-                    <Cell key={cell.id} cellState={cell.cellStateId}/>
+                    <Cell key={cell.id} x={cell.x} y={cell.y} cellState={cell.cellStateId}/>
                 }
                 </>
             ))}

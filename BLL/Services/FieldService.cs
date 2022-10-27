@@ -13,6 +13,11 @@ namespace BLL.Services
             _repository = repository;
         }
 
+        public Field CreateField(int size, string playerId)
+        {
+            return new Field { Size = 10, PlayerId = playerId };
+        }
+
         public int GetFieldId(string playerId)
         {
             return _repository.GetAll().Result.Where(x => x.PlayerId == playerId).FirstOrDefault().Id;

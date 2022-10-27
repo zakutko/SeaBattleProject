@@ -12,6 +12,16 @@ namespace BLL.Services
             _repository = repository;
         }
 
+        public Game CreateGame(int gameStateId)
+        {
+            return new Game { GameStateId = 1 };
+        }
+
+        public Game UpdateGame(int gameId, int gameStateId)
+        {
+            return new Game { Id = gameId, GameStateId = 2 };
+        }
+
         public IEnumerable<Game> GetGames()
         {
             var result = _repository.GetAll().Result;

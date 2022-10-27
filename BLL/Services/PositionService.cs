@@ -13,6 +13,11 @@ namespace BLL.Services
             _repository = repository;
         }
 
+        public Position UpdatePosition(int positionId, int shipWrapperId, int cellId)
+        {
+            return new Position { Id = positionId, ShipWrapperId = shipWrapperId, CellId = cellId };
+        }
+
         public int GetPositionId(int shipWrapperId)
         {
             return _repository.GetAll().Result.Where(x => x.ShipWrapperId == shipWrapperId).FirstOrDefault().Id;

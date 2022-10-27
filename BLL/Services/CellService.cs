@@ -17,6 +17,11 @@ namespace BLL.Services
             _positionRepository = positionRepository;
         }
 
+        public Cell UpdateCell(int cellId, int x, int y, int cellStateId)
+        {
+            return new Cell { Id = cellId, X = x, Y = y, CellStateId = cellStateId };
+        }
+
         public int GetCellId(int x, int y, IEnumerable<ShipWrapper> shipWrappers)
         {
             var positions = _positionRepository.GetByShipWrapperId(shipWrappers);

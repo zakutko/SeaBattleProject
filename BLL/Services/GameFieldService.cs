@@ -13,6 +13,16 @@ namespace BLL.Services
             _repository = repository;
         }
 
+        public GameField CreateGameField(int fieldId, int gameId)
+        {
+            return new GameField { FirstFieldId = fieldId, GameId = gameId };
+        }
+
+        public GameField UpdateGameField(int gameFieldId, int firstFieldId, int secondFieldId, int gameId)
+        {
+            return new GameField { Id = gameFieldId, FirstFieldId = firstFieldId, SecondFieldId = secondFieldId, GameId = gameId };
+        }
+
         public int GetFirstFieldId(int id)
         {
             var gameField = _repository.GetById(id).Result;

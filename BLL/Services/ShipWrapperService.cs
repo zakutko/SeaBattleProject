@@ -15,6 +15,11 @@ namespace BLL.Services
             _shipRepository = shipRepository;
         }
 
+        public ShipWrapper CreateShipWrapper(int shipId, int fieldId)
+        {
+            return new ShipWrapper { ShipId = shipId, FieldId = fieldId };
+        }
+
         public ShipWrapper GetDefaultShipWrapper(int fieldId)
         {
             return new ShipWrapper { FieldId = fieldId };

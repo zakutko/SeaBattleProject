@@ -2,6 +2,7 @@ import { observer } from "mobx-react";
 import "./field.css";
 
 export default observer(function Cell(props: any) {
+
     return (
         <>
         {props.cellState === 1 &&

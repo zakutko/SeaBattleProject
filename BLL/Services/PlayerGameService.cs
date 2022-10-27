@@ -13,6 +13,16 @@ namespace BLL.Services
             _repository = repository;
         }
 
+        public PlayerGame CreatePlayerGame(int gameId, string playerId)
+        {
+            return new PlayerGame { GameId = gameId, FirstPlayerId = playerId };
+        }
+
+        public PlayerGame UpdatePlayerGame(int playerGameId, int gameId, string firstPlayerId, string secondPlayerId)
+        {
+            return new PlayerGame { Id = playerGameId, GameId = gameId, FirstPlayerId = firstPlayerId, SecondPlayerId = secondPlayerId };
+        }
+
         public int GetNumberOfPlayers(int id)
         {
             var playerGame = _repository.GetAll().Result.Where(x => x.GameId == id).FirstOrDefault();

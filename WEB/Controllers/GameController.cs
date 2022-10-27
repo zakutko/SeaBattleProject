@@ -8,7 +8,6 @@ using BLL.Handlers.Positions;
 using BLL.Handlers.Ships;
 using BLL.Handlers.ShipWrappers;
 using BLL.Interfaces;
-using DAL.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.IdentityModel.Tokens.Jwt;
@@ -30,6 +29,7 @@ namespace WEB.Controllers
         private readonly IFieldService _fieldService;
         private readonly IShipWrapperService _shipWrapperService;
         private readonly IAppUserService _appUserService;
+        private readonly IShipService _shipService;
 
         public GameController(
             IGameService gameService, 
@@ -42,7 +42,8 @@ namespace WEB.Controllers
             IPositionService positionService,
             IFieldService fieldService,
             IShipWrapperService shipWrapperService,
-            IAppUserService appUserService)
+            IAppUserService appUserService,
+            IShipService shipService)
         {
             _gameService = gameService;
             _playerService = playerService;
@@ -55,6 +56,7 @@ namespace WEB.Controllers
             _fieldService = fieldService;
             _shipWrapperService = shipWrapperService;
             _appUserService = appUserService;
+            _shipService = shipService;
         }
 
         [HttpGet]
@@ -103,7 +105,7 @@ namespace WEB.Controllers
         [HttpGet("createGame")]
         public async Task<IActionResult> CreateGame(string token)
         {
-            var game = new Game { GameStateId = 1 };
+            var game = _gameService.CreateGame(1);
             await Mediator.Send(new CreateGame.Command { Game = game });
 
             var handler = new JwtSecurityTokenHandler();
@@ -113,13 +115,13 @@ namespace WEB.Controllers
             var playerId = _playerService.GetPlayerId(username);
             await Mediator.Send(new UpdateAppUser.Command { AppUser = _appUserService.CreateNewAppUser(playerId, true) });
 
-            var playerGame = new PlayerGame { GameId = game.Id, FirstPlayerId = playerId };
+            var playerGame = _playerGameService.CreatePlayerGame(game.Id, playerId);
             await Mediator.Send(new CreatePlayerGame.Command { PlayerGame = playerGame });
 
-            var field = new Field { Size = 10, PlayerId = playerId };
+            var field = _fieldService.CreateField(10, playerId);
             await Mediator.Send(new CreateField.Command { Field = field });
 
-            var gameField = new GameField { FirstFieldId = field.Id, GameId = game.Id };
+            var gameField = _gameFieldService.CreateGameField(field.Id, game.Id);
             await Mediator.Send(new CreateGameField.Command { GameField = gameField });
             return Ok();
         }
@@ -141,19 +143,19 @@ namespace WEB.Controllers
             await Mediator.Send(new UpdateAppUser.Command { AppUser = _appUserService.CreateNewAppUser(secondPlayerId, false) });
 
             //update table Game
-            var game = new Game { Id = gameId, GameStateId = 2 };
+            var game = _gameService.UpdateGame(gameId, 2);
             await Mediator.Send(new UpdateGame.Command { Game = game });
 
             //update table Field
-            var field = new Field { Size = 10, PlayerId = secondPlayerId };
+            var field = _fieldService.CreateField(10, secondPlayerId);
             await Mediator.Send(new CreateField.Command { Field = field });
 
             //update table PlayerGame
-            var playerGame = new PlayerGame { Id = playerGameId, GameId = gameId, FirstPlayerId = firstPlayerId, SecondPlayerId = secondPlayerId };
+            var playerGame = _playerGameService.UpdatePlayerGame(playerGameId, gameId, firstPlayerId, secondPlayerId);
             await Mediator.Send(new UpdatePlayerGame.Command { PlayerGame = playerGame });
 
             //update table GameField
-            var gameField = new GameField { Id = gameFieldId, FirstFieldId = firstFieldId, SecondFieldId = field.Id, GameId = gameId };
+            var gameField = _gameFieldService.UpdateGameField(gameFieldId, firstFieldId, field.Id, gameId);
             await Mediator.Send(new UpdateGameField.Command { GameField = gameField });
 
             return Ok();
@@ -257,13 +259,11 @@ namespace WEB.Controllers
                     break;
             }
 
-            var ship = new Ship { DirectionId = model.ShipDirection, ShipStateId = 1, ShipSizeId = model.ShipSize };
-
+            var ship = _shipService.CreateShip(model.ShipDirection, 1, model.ShipSize);
             //add ship to Ship table
             await Mediator.Send(new CreateShip.Command { Ship = ship });
 
-            var shipWrapper = new ShipWrapper { ShipId = ship.Id, FieldId = fieldId };
-
+            var shipWrapper = _shipWrapperService.CreateShipWrapper(ship.Id, fieldId);
             //add shipWrapper to ShipWrapper table
             await Mediator.Send(new CreateShipWrapper.Command { ShipWrapper = shipWrapper });
 
@@ -285,12 +285,12 @@ namespace WEB.Controllers
                     var shipWrappers = _shipWrapperService.GetAllShipWrappersByFiedlId(fieldId);
                     //update cells in Cell table
                     var cellId = _cellService.GetCellId(cell.X, cell.Y, shipWrappers);
-                    var updateCell = new Cell { Id = cellId, X = cell.X, Y = cell.Y, CellStateId = cell.CellStateId };
+                    var updateCell = _cellService.UpdateCell(cellId, cell.X, cell.Y, cell.CellStateId);
                     await Mediator.Send(new UpdateCell.Command { Cell = updateCell });
 
                     //update positions in Position table
                     var positionId = _positionService.GetPositionByCellId(cellId);
-                    var updatePosition = new Position { Id = positionId, ShipWrapperId = shipWrapper.Id, CellId = cellId };
+                    var updatePosition = _positionService.UpdatePosition(positionId, shipWrapper.Id, cellId);
                     await Mediator.Send(new UpdatePosition.Command { Position = updatePosition });
                 }
                 catch (Exception ex)

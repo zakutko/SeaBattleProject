@@ -4,6 +4,7 @@ namespace BLL.Interfaces
 {
     public interface IShipWrapperService
     {
+        ShipWrapper CreateShipWrapper(int shipId, int fieldId);
         int GetNumberOfShips(int fieldId);
         int GetNumberOfShipsWhereSizeOne(int fieldId);
         int GetNumberOfShipsWhereSizeTwo(int fieldId);

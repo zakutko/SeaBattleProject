@@ -4,6 +4,7 @@ import { Form, Label } from "semantic-ui-react"
 import MyTextInput from "../../common/form/MyTextInput";
 import { useStore } from "../../stores/store";
 import { FormControl, FormControlLabel, Radio, RadioGroup } from "@mui/material";
+import { useNavigate } from "react-router";
 
 export default observer(function FieldForm(){
     const {shipStore} = useStore();
@@ -25,15 +26,20 @@ export default observer(function FieldForm(){
 
     const token = localStorage.getItem('token');
 
+    const onSubmit = async (values, {setErrors}) => {
+        shipStore.createShipOnField(values).catch(error => setErrors({error: "An error occured while adding a ship!"}));
+    }
+    const navigate = useNavigate();
+
     return (
         <>
         <div>
             <Formik
                 initialValues={{shipSize: SizeOptions.One, shipDirection: Options.Horizontal, x: 0, y: 0, token, error: null}}
-                onSubmit = {(values, {setErrors}) => shipStore.createShipOnField(values).catch(error => setErrors({error: "An error occured while adding a ship!"}))}
+                onSubmit = {onSubmit}
                 >
                 {({ values, setFieldValue, handleSubmit, isSubmitting, errors}) => (
-                <Form className="form" onSubmit={handleSubmit}>
+                <Form className="form" onSubmit={() => {handleSubmit(); navigate(0)}}>
                     <h2>Ship size:</h2>
                     <FormControl component="fieldset">
                         <RadioGroup name={nameSize} value={values.shipSize} onChange={(event) => {
