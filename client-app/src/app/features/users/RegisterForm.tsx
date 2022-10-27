@@ -4,16 +4,22 @@ import { Button, Form, Label } from "semantic-ui-react";
 import MyTextInput from "../../common/form/MyTextInput";
 import { useStore } from "../../stores/store";
 import * as Yup from 'yup';
+import { useNavigate } from "react-router";
 
 
 export default observer(function RegisterForm() {
     const {userStore} = useStore();
+    const navigate = useNavigate();
+
+    const onSubmit = async (values, {setErrors}) => {
+        userStore.register(values).catch(error => setErrors({error: "User with such email already exists!"}))
+    }
 
     return (
-        
-        <Formik 
+        <div className="login-register-form">
+            <Formik 
             initialValues={{displayName: '', username: '', email: '', password: '', error: null}}
-            onSubmit = {(values, {setErrors}) => userStore.register(values).catch(error => setErrors({error: "User with such email already exists!"}))}
+            onSubmit = {onSubmit}
             validationSchema={Yup.object({
                 displayName: Yup.string().required(),
                 username: Yup.string().required(),
@@ -22,7 +28,7 @@ export default observer(function RegisterForm() {
             })}
         >
             {({handleSubmit, isSubmitting, errors, isValid, dirty}) => (
-                <Form className="ui form" onSubmit={handleSubmit} autoComplete='off'>
+                <Form className="ui form" onSubmit={() => {handleSubmit(); navigate("/")}} autoComplete='off'>
                     <MyTextInput name='displayName' placeholder='Display Name'/>
                     <MyTextInput name='username' placeholder='Username'/>
                     <MyTextInput name='email' placeholder='Email'/>
@@ -40,5 +46,6 @@ export default observer(function RegisterForm() {
                 </Form>
             )}
         </Formik>
+        </div>
     )
 })

@@ -1,4 +1,5 @@
-﻿using BLL.Handlers.Cells;
+﻿using BLL.Handlers.AppUsers;
+using BLL.Handlers.Cells;
 using BLL.Handlers.Fields;
 using BLL.Handlers.GameFields;
 using BLL.Handlers.Games;
@@ -28,6 +29,7 @@ namespace WEB.Controllers
         private readonly IPositionService _positionService;
         private readonly IFieldService _fieldService;
         private readonly IShipWrapperService _shipWrapperService;
+        private readonly IAppUserService _appUserService;
 
         public GameController(
             IGameService gameService, 
@@ -39,7 +41,8 @@ namespace WEB.Controllers
             ICellService cellService,
             IPositionService positionService,
             IFieldService fieldService,
-            IShipWrapperService shipWrapperService)
+            IShipWrapperService shipWrapperService,
+            IAppUserService appUserService)
         {
             _gameService = gameService;
             _playerService = playerService;
@@ -51,6 +54,7 @@ namespace WEB.Controllers
             _positionService = positionService;
             _fieldService = fieldService;
             _shipWrapperService = shipWrapperService;
+            _appUserService = appUserService;
         }
 
         [HttpGet]
@@ -104,10 +108,11 @@ namespace WEB.Controllers
 
             var handler = new JwtSecurityTokenHandler();
             var jwtSecurityToken = handler.ReadJwtToken(token);
-
             var username = jwtSecurityToken.Claims.First(claim => claim.Type == "unique_name").Value;
 
             var playerId = _playerService.GetPlayerId(username);
+            await Mediator.Send(new UpdateAppUser.Command { AppUser = _appUserService.CreateNewAppUser(playerId, true) });
+
             var playerGame = new PlayerGame { GameId = game.Id, FirstPlayerId = playerId };
             await Mediator.Send(new CreatePlayerGame.Command { PlayerGame = playerGame });
 
@@ -131,6 +136,9 @@ namespace WEB.Controllers
             var playerGameId = _playerGameService.GetPlayerGameId(gameId, firstPlayerId);
             var firstFieldId = _gameFieldService.GetFirstFieldId(gameId);
             var gameFieldId = _gameFieldService.GetGameFieldId(gameId, firstFieldId);
+
+            //update table AppUser
+            await Mediator.Send(new UpdateAppUser.Command { AppUser = _appUserService.CreateNewAppUser(secondPlayerId, false) });
 
             //update table Game
             var game = new Game { Id = gameId, GameStateId = 2 };
@@ -342,7 +350,7 @@ namespace WEB.Controllers
             var firstPlayerId = _playerService.GetPlayerId(username);
 
             var secondPlayerId = _playerGameService.GetSecondPlayerId(firstPlayerId);
-
+            
             var fieldId = _fieldService.GetFieldId(secondPlayerId);
 
             var shipWrappers = _shipWrapperService.GetAllShipWrappersByFiedlId(fieldId);
@@ -365,11 +373,12 @@ namespace WEB.Controllers
                     CellStateId = cell.CellStateId
                 });
             }
+
             return Ok(cellListViewModels.OrderBy(x => x.Id));
         }
 
         [HttpPost("game/fire")]
-        public async Task<IActionResult> Shoot([FromBody] ShootViewModel model)
+        public async Task<IActionResult> Fire([FromBody] ShootViewModel model)
         {
             var handler = new JwtSecurityTokenHandler();
             var jwtSecurityToken = handler.ReadJwtToken(model.Token);
@@ -388,7 +397,11 @@ namespace WEB.Controllers
             {
                 var newCell = _cellService.CreateNewCell(cell.Id, cell.X, cell.Y, cell.CellStateId, false);
                 await Mediator.Send(new UpdateCell.Command { Cell = newCell });
-                return Ok("Shoot fired successfully!");
+                var firstAppUser = _appUserService.CreateNewAppUser(firstPlayerId, false);
+                await Mediator.Send(new UpdateAppUser.Command { AppUser = firstAppUser });
+                var secondAppUser = _appUserService.CreateNewAppUser(secondPlayerId, true);
+                await Mediator.Send(new UpdateAppUser.Command { AppUser = secondAppUser });
+                return Ok("Missed the fire!");
             }
             else
             {
@@ -407,10 +420,23 @@ namespace WEB.Controllers
                         var newCellBtCellId = _cellService.CreateNewCell(cellByCellId.Id, cellByCellId.X, cellByCellId.Y, cellByCellId.CellStateId, isDestroyed);
                         await Mediator.Send(new UpdateCell.Command { Cell = newCellBtCellId });
                     }
-                    return Ok("Shoot fired successfully!");
+                    return Ok("The ship is destroyed!");
                 }
-                return Ok("Shoot fired successfully!");
+                return Ok("The ship is hit!");
             }
+        }
+
+        [HttpGet("game/priority")]
+        public async Task<ActionResult<HitViewModel>> GetPriopity(string token)
+        {
+            var handler = new JwtSecurityTokenHandler();
+            var jwtSecurityToken = handler.ReadJwtToken(token);
+            var username = jwtSecurityToken.Claims.First(claim => claim.Type == "unique_name").Value;
+            var playerId = _playerService.GetPlayerId(username);
+
+            var player = _playerService.GetPlayer(playerId);
+
+            return new HitViewModel { IsHit = player.IsHit };
         }
     }
 }

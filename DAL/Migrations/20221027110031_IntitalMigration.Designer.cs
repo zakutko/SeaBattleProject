@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DAL.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20221025120047_IntitalMigration")]
+    [Migration("20221027110031_IntitalMigration")]
     partial class IntitalMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -45,6 +45,9 @@ namespace DAL.Migrations
                         .HasColumnType("nvarchar(256)");
 
                     b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<bool?>("IsHit")
                         .HasColumnType("bit");
 
                     b.Property<bool>("LockoutEnabled")

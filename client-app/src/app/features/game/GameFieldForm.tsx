@@ -1,5 +1,5 @@
 import { ErrorMessage, Formik } from "formik";
-import { observer } from "mobx-react"
+import { observer } from "mobx-react";
 import { useNavigate } from "react-router";
 import { Form, Label } from "semantic-ui-react";
 import MyTextInput from "../../common/form/MyTextInput";
@@ -12,10 +12,11 @@ export default observer(function GameFieldForm(){
     const navigate = useNavigate();
 
     const onSubmit = async (values, {setErrors}) => {
-        shootStore.fire(values).catch(error => setErrors({error: "There is no such cell on the field!"}));
+        shootStore.fire(values)
+        .catch(error => setErrors({error: "There is no such cell on the field!"}));
     }
 
-    return (
+    return(
         <>
         <div>
             <Formik
@@ -42,5 +43,5 @@ export default observer(function GameFieldForm(){
             </Formik>
         </div> 
         </>
-    )
+        )
 })

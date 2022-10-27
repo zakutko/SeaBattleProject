@@ -1,10 +1,11 @@
 import { observer } from "mobx-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button, Container, Menu } from "semantic-ui-react";
 import { useStore } from "../stores/store";
 
 export default observer(function NavBar() {
     const {userStore: {logout}} = useStore();
+    const navigate = useNavigate();
 
     return (
         <Menu inverted fixed='top'>
@@ -18,7 +19,7 @@ export default observer(function NavBar() {
                 </Menu.Item>
                 <Menu.Item position="right">
                     <Menu.Item>{}</Menu.Item>
-                    <Button onClick={logout} color='grey'>Logout</Button>
+                    <Button onClick={() => {logout(); navigate("/")}} color='grey'>Logout</Button>
                 </Menu.Item>
             </Container>
         </Menu>

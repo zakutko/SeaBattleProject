@@ -57,6 +57,7 @@ namespace WEB.Extensions
             services.AddScoped<IPositionService, PositionService>();
             services.AddScoped<IFieldService, FieldService>();
             services.AddScoped<IShipWrapperService, ShipWrapperService>();
+            services.AddScoped<IAppUserService, AppUserService>();
 
             return services;
         }

@@ -2,13 +2,13 @@
 using DAL.Models;
 using MediatR;
 
-namespace BLL.Handlers.Cells
+namespace BLL.Handlers.AppUsers
 {
-    public class UpdateCell
+    public class UpdateAppUser
     {
         public class Command : IRequest
         {
-            public Cell Cell { get; set; }
+            public AppUser AppUser { get; set; }
         }
 
         public class Handler : IRequestHandler<Command>
@@ -23,7 +23,7 @@ namespace BLL.Handlers.Cells
             public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
             {
                 _context.ChangeTracker.Clear();
-                _context.Cells.Update(request.Cell);
+                _context.AppUsers.Update(request.AppUser);
 
                 await _context.SaveChangesAsync();
 

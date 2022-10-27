@@ -82,10 +82,6 @@ namespace DAL
                     },
                     new GameState
                     {
-                        GameStateName = "Preparation"
-                    },
-                    new GameState
-                    {
                         GameStateName = "Started"
                     },
                     new GameState
