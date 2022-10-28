@@ -105,6 +105,10 @@ namespace BLL.Services
                 if (shipDirectionName == "Vertical")
                 {
                     var newCell = new Cell { X = x, Y = y + i, CellStateId = 2 };
+                    if (newCell.Y > 10 || newCell.Y < 1)
+                    {
+                        throw new Exception("The ship is out of bounds!");
+                    }
 
                     var aroundNewCells = new List<Cell>();
                     if (i == 0)
@@ -219,6 +223,11 @@ namespace BLL.Services
                 else if (shipDirectionName == "Horizontal")
                 {
                     var newCell = new Cell { X = x + i, Y = y, CellStateId = 2 };
+                    if (newCell.X < 1 || newCell.X > 10)
+                    {
+                        throw new Exception("The ship is out of bounds!");
+                    }
+
                     var aroundNewCells = new List<Cell>();
                     if (i == 0)
                     {

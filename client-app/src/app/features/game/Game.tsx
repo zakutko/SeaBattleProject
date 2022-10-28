@@ -3,45 +3,37 @@ import FieldCell from "../field/FieldCell";
 import SecondPlayerFieldCell from "../field/SecondPlayerFieldCell";
 import "./game.css";
 import "../field/field.css";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 import agent from "../../api/agent";
 import GameFieldForm from "./GameFieldForm";
-import { Loader, TransitionGroup } from "semantic-ui-react";
-import { CircularProgress } from "@mui/material";
 import EndOfTheGame from "./EndOfTheGame";
 
 export default observer(function Game(){
     const [numberOfReadyPlayers, setNumberOfReadyPlayers] = useState(0);
-    const [loading, setLoading] = useState(true);
     const [isHit, setIsHit] = useState(true);
-    const [showComponent, setShowComponent] = useState(false);
     const [isEndOfTheGame, setIsEndOfTheGame] = useState(false);
     const [winnerUserName, setWinnerUserName] = useState("");
+    const [isPending, startTransition] = useTransition();
 
     useEffect(() => {
         const token = localStorage.getItem('token');
         if (token) {
-            agent.Games.numberOfReadyPlayers(token).then(response => {
-                setNumberOfReadyPlayers(response.numberOfReadyPlayers);
-            });
-            agent.Games.priopity(token).then(response => {
-                setIsHit(response.isHit);
-            })
-            agent.Games.endOfTheGame(token).then(response => {
-                setIsEndOfTheGame(response.isEndOfTheGame);
-                setWinnerUserName(response.winnerUserName);
+            startTransition(() => {
+                agent.Games.numberOfReadyPlayers(token).then(response => {
+                    setNumberOfReadyPlayers(response.numberOfReadyPlayers);
+                });
+                agent.Games.priopity(token).then(response => {
+                    setIsHit(response.isHit);
+                })
+                agent.Games.endOfTheGame(token).then(response => {
+                    setWinnerUserName(response.winnerUserName);
+                    setIsEndOfTheGame(response.isEndOfTheGame);
+                })
             })
         }
-
-        setInterval(() => {
-            setShowComponent(true);
-        }, 1000)
-
-        setLoading(false);
     }, [])
 
-    return isEndOfTheGame ? <EndOfTheGame winnerUserName={winnerUserName}/> :
-    loading ? <Loader /> :
+    return isEndOfTheGame ? (<EndOfTheGame winnerUserName={winnerUserName}/>) : (
         <>
         <div>
             <div className="help-colors">
@@ -57,10 +49,10 @@ export default observer(function Game(){
             </div>
             <div className="game">
                 <div className="field">
-                    {showComponent ? (<TransitionGroup><FieldCell /></TransitionGroup>) : (<CircularProgress color="secondary" />)}
+                    <FieldCell />
                 </div>
                 <div className="field">
-                    {showComponent ? (<SecondPlayerFieldCell />) : (<CircularProgress color="secondary" />)}
+                    <SecondPlayerFieldCell />
                 </div>
             </div>
             <div className="gameFieldForm">
@@ -75,4 +67,5 @@ export default observer(function Game(){
             </div>
         </div>
         </>
+    )
 })

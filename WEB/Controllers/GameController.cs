@@ -268,37 +268,45 @@ namespace WEB.Controllers
             await Mediator.Send(new CreateShipWrapper.Command { ShipWrapper = shipWrapper });
 
             var shipDirectionName = _directionService.GetDirectionName(model.ShipDirection);
-
-            var cellList = _cellService.GetAllCells(shipDirectionName, model.ShipSize, model.X, model.Y, fieldId);
-
-            if (!cellList.Any())
+            try
             {
-                await Mediator.Send(new DeleteShipWrapper.Command { ShipWrapper = shipWrapper });
-                await Mediator.Send(new DeleteShip.Command { Ship = ship });
-                return BadRequest("The place is occupied by another ship!");
-            }
+                var cellList = _cellService.GetAllCells(shipDirectionName, model.ShipSize, model.X, model.Y, fieldId);
 
-            foreach (var cell in cellList)
-            {
-                try
-                {
-                    var shipWrappers = _shipWrapperService.GetAllShipWrappersByFiedlId(fieldId);
-                    //update cells in Cell table
-                    var cellId = _cellService.GetCellId(cell.X, cell.Y, shipWrappers);
-                    var updateCell = _cellService.UpdateCell(cellId, cell.X, cell.Y, cell.CellStateId);
-                    await Mediator.Send(new UpdateCell.Command { Cell = updateCell });
-
-                    //update positions in Position table
-                    var positionId = _positionService.GetPositionByCellId(cellId);
-                    var updatePosition = _positionService.UpdatePosition(positionId, shipWrapper.Id, cellId);
-                    await Mediator.Send(new UpdatePosition.Command { Position = updatePosition });
-                }
-                catch (Exception ex)
+                if (!cellList.Any())
                 {
                     await Mediator.Send(new DeleteShipWrapper.Command { ShipWrapper = shipWrapper });
                     await Mediator.Send(new DeleteShip.Command { Ship = ship });
-                    return BadRequest(ex.Message);
+                    return BadRequest("The place is occupied by another ship!");
                 }
+
+                foreach (var cell in cellList)
+                {
+                    try
+                    {
+                        var shipWrappers = _shipWrapperService.GetAllShipWrappersByFiedlId(fieldId);
+                        //update cells in Cell table
+                        var cellId = _cellService.GetCellId(cell.X, cell.Y, shipWrappers);
+                        var updateCell = _cellService.UpdateCell(cellId, cell.X, cell.Y, cell.CellStateId);
+                        await Mediator.Send(new UpdateCell.Command { Cell = updateCell });
+
+                        //update positions in Position table
+                        var positionId = _positionService.GetPositionByCellId(cellId);
+                        var updatePosition = _positionService.UpdatePosition(positionId, shipWrapper.Id, cellId);
+                        await Mediator.Send(new UpdatePosition.Command { Position = updatePosition });
+                    }
+                    catch (Exception ex)
+                    {
+                        await Mediator.Send(new DeleteShipWrapper.Command { ShipWrapper = shipWrapper });
+                        await Mediator.Send(new DeleteShip.Command { Ship = ship });
+                        return BadRequest(ex.Message);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                await Mediator.Send(new DeleteShipWrapper.Command { ShipWrapper = shipWrapper });
+                await Mediator.Send(new DeleteShip.Command { Ship = ship });
+                return BadRequest(ex.Message);
             }
             return Ok("Ship added successfully!");
         }
