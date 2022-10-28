@@ -71,3 +71,15 @@
     display: flex;
     justify-content: center;
 }
+
+.endOfTheGame {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding-top: 50px;
+}
+
+.winner {
+    color: red;
+}

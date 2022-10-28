@@ -1,6 +1,5 @@
 ﻿using BLL.Interfaces;
 using DAL.Models;
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -10,11 +9,6 @@ namespace BLL.Services
 {
     public class TokenService : ITokenService
     {
-        private readonly IConfiguration _configuration;
-        public TokenService(IConfiguration configuration)
-        {
-            _configuration = configuration;
-        }
         public string CreateToken(AppUser user)
         {
             var claims = new List<Claim>

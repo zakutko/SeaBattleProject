@@ -7,6 +7,7 @@ namespace BLL.Services
     public class GameService : IGameService
     {
         private readonly IRepository<Game> _repository;
+
         public GameService(IRepository<Game> repository)
         {
             _repository = repository;
@@ -44,6 +45,12 @@ namespace BLL.Services
             }
 
             return result;
+        }
+
+        public Game GetNewGame(int id)
+        {
+            var result = _repository.GetById(id).Result;
+            return new Game { Id = result.Id, GameStateId = 3 };
         }
     }
 }

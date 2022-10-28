@@ -1,9 +1,7 @@
 import axios, { AxiosResponse } from "axios";
 import { CellList } from "../models/cellsList";
+import { IsEndOfTheGame, IsHit, IsPlayerReady, IsTwoPlayersReady } from "../models/checks";
 import { GameList } from "../models/gameList";
-import { IsHit } from "../models/isHit";
-import { IsPlayerReady } from "../models/isPlayerReady";
-import { IsTwoPlayersReady } from "../models/isTwoPlayersReady";
 import { Ship, ShipFormValues } from "../models/ship";
 import { ShootFormValues } from "../models/shoot";
 import { User, UserFormValues } from "../models/user";
@@ -33,6 +31,8 @@ const Games = {
     secondPlayerCells: (token: string) => request.get<CellList[]>(`/Game/game/secondPlayerCells?token=${token}`),
     fire: (shoot: ShootFormValues) => request.post<void>('Game/game/fire', shoot),
     priopity: (token: string) => request.get<IsHit>(`Game/game/priority?token=${token}`),
+    endOfTheGame: (token: string) => request.get<IsEndOfTheGame>(`Game/game/endOfTheGame?token=${token}`),
+    clearingDb: (token: string) => request.get<void>(`Game/game/clearingDb?token=${token}`)
 }
 
 const Account = {

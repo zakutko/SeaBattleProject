@@ -15,6 +15,11 @@ namespace BLL.Services
             _shipRepository = shipRepository;
         }
 
+        public ShipWrapper GetShipWrapper(int shipWrapperId)
+        {
+            return _repository.GetById(shipWrapperId).Result;
+        }
+
         public ShipWrapper CreateShipWrapper(int shipId, int fieldId)
         {
             return new ShipWrapper { ShipId = shipId, FieldId = fieldId };
@@ -107,6 +112,17 @@ namespace BLL.Services
         public IEnumerable<ShipWrapper> GetAllShipWrappersByFiedlId(int fieldId)
         {
             return _repository.GetAll().Result.Where(x => x.FieldId == fieldId);
+        }
+
+        public IEnumerable<int> GetAllShipIdsByFieldId(int fieldId)
+        {
+            var shipIds = new List<int>();
+            var shipWrappers = _repository.GetAll().Result.Where(x => x.FieldId == fieldId && x.ShipId != null);
+            foreach (var shipWrapper in shipWrappers)
+            {
+                shipIds.Add((int)shipWrapper.ShipId);
+            }
+            return shipIds;
         }
     }
 }

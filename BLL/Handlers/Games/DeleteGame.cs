@@ -4,7 +4,7 @@ using MediatR;
 
 namespace BLL.Handlers.Games
 {
-    public class UpdateGame
+    public class DeleteGame
     {
         public class Command : IRequest
         {
@@ -22,8 +22,7 @@ namespace BLL.Handlers.Games
 
             public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
             {
-                _context.ChangeTracker.Clear();
-                _context.Games.Update(request.Game);
+                _context.Games.Remove(request.Game);
 
                 await _context.SaveChangesAsync();
 

@@ -25,10 +25,6 @@ export default observer(function FieldForm(){
     const nameSize = 'shipSize';
 
     const token = localStorage.getItem('token');
-
-    const onSubmit = async (values, {setErrors}) => {
-        shipStore.createShipOnField(values).catch(error => setErrors({error: "An error occured while adding a ship!"}));
-    }
     const navigate = useNavigate();
 
     return (
@@ -36,7 +32,9 @@ export default observer(function FieldForm(){
         <div>
             <Formik
                 initialValues={{shipSize: SizeOptions.One, shipDirection: Options.Horizontal, x: 0, y: 0, token, error: null}}
-                onSubmit = {onSubmit}
+                onSubmit = {(values, {setErrors}) => {
+                    shipStore.createShipOnField(values).catch(error => setErrors({error: "An error occured while adding a ship!"}));
+                }}
                 >
                 {({ values, setFieldValue, handleSubmit, isSubmitting, errors}) => (
                 <Form className="form" onSubmit={() => {handleSubmit(); navigate(0)}}>

@@ -12,10 +12,12 @@ namespace BLL.Services
         {
             _repository = repository;
         }
+
         public AppUser GetPlayer(string id)
         {
             return _repository.GetById(id).Result;
         }
+
         public string GetPlayerId(string username)
         {
             var player = _repository.GetByUsername(username);

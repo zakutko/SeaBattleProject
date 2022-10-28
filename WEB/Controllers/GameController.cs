@@ -438,5 +438,140 @@ namespace WEB.Controllers
 
             return new HitViewModel { IsHit = player.IsHit };
         }
+
+        [HttpGet("game/endOfTheGame")]
+        public async Task<ActionResult<IsEndOfTheGameViewModel>> IsEndOfTheGame(string token)
+        {
+            var handler = new JwtSecurityTokenHandler();
+            var jwtSecurityToken = handler.ReadJwtToken(token);
+            var username = jwtSecurityToken.Claims.First(claim => claim.Type == "unique_name").Value;
+            var firstPlayerId = _playerService.GetPlayerId(username);
+            var firstFieldId = _fieldService.GetFieldId(firstPlayerId);
+            var firstShipWrappers = _shipWrapperService.GetAllShipWrappersByFiedlId(firstFieldId);
+            var firstPositions = _positionService.GetAllPoitionsByShipWrapperId(firstShipWrappers);
+            var firstCellsIds = _cellService.GetAllCellsIdByPositions(firstPositions);
+            var firstCellList = _cellService.GetAllCellsByCellIds(firstCellsIds);
+
+            var secondPlayerId = _playerGameService.GetSecondPlayerId(firstPlayerId);
+            var secondFieldId = _fieldService.GetFieldId(secondPlayerId);
+            var secondShipWrappers = _shipWrapperService.GetAllShipWrappersByFiedlId(secondFieldId);
+            var secondPositions = _positionService.GetAllPoitionsByShipWrapperId(secondShipWrappers);
+            var secondCellsIds = _cellService.GetAllCellsIdByPositions(secondPositions);
+            var secondCellList = _cellService.GetAllCellsByCellIds(secondCellsIds);
+
+            var firstCellsWithStateBusyOrHit = _cellService.CheckIsCellsWithStateBusyOrHit(firstCellList);
+            var secondIsCellsWithStateBusyOrHit = _cellService.CheckIsCellsWithStateBusyOrHit(secondCellList);
+
+            if (secondIsCellsWithStateBusyOrHit && firstCellsWithStateBusyOrHit)
+            {
+                return Ok(new IsEndOfTheGameViewModel { IsEndOfTheGame = false, WinnerUserName = "" });
+            }
+            var gameId = _playerGameService.GetPlayerGame(firstPlayerId, secondPlayerId).GameId;
+            var game = _gameService.GetNewGame(gameId);
+
+            if (!firstCellsWithStateBusyOrHit)
+            {
+                await Mediator.Send(new UpdateGame.Command { Game = game });
+                return Ok(new IsEndOfTheGameViewModel { IsEndOfTheGame = true, WinnerUserName = _appUserService.GetUsername(secondPlayerId) });
+            }
+            await Mediator.Send(new UpdateGame.Command { Game = game });
+            return Ok(new IsEndOfTheGameViewModel { IsEndOfTheGame = true, WinnerUserName = username });
+        }
+
+        [HttpGet("game/clearingDb")]
+        public async Task<IActionResult> ClearingDB(string token)
+        {
+            try
+            {
+                var handler = new JwtSecurityTokenHandler();
+                var jwtSecurityToken = handler.ReadJwtToken(token);
+                var username = jwtSecurityToken.Claims.First(claim => claim.Type == "unique_name").Value;
+                var firstPlayerId = _playerService.GetPlayerId(username);
+                var secondPlayerId = _playerGameService.GetSecondPlayerId(firstPlayerId);
+
+                //update table AppUser(cleanup column IsHit)
+                var firstAppUser = _appUserService.CreateNewAppUser(firstPlayerId, null);
+                await Mediator.Send(new UpdateAppUser.Command { AppUser = firstAppUser });
+                var secondAppUser = _appUserService.CreateNewAppUser(secondPlayerId, null);
+                await Mediator.Send(new UpdateAppUser.Command { AppUser = secondAppUser });
+
+                var firstFieldId = _fieldService.GetFieldId(firstPlayerId);
+                var firstFieldShipIds = _shipWrapperService.GetAllShipIdsByFieldId(firstFieldId);
+                var firstShips = _shipService.GetAllShips(firstFieldShipIds);
+                var firstShipWrappers = _shipWrapperService.GetAllShipWrappersByFiedlId(firstFieldId);
+                var firstPositions = _positionService.GetAllPoitionsByShipWrapperId(firstShipWrappers);
+                var firstCellsIds = _cellService.GetAllCellsIdByPositions(firstPositions);
+                var firstCellList = _cellService.GetAllCellsByCellIds(firstCellsIds);
+
+                var secondFieldId = _fieldService.GetFieldId(secondPlayerId);
+                var secondFieldShipIds = _shipWrapperService.GetAllShipIdsByFieldId(secondFieldId);
+                var secondShips = _shipService.GetAllShips(secondFieldShipIds);
+                var secondShipWrappers = _shipWrapperService.GetAllShipWrappersByFiedlId(secondFieldId);
+                var secondPositions = _positionService.GetAllPoitionsByShipWrapperId(secondShipWrappers);
+
+                if (secondPositions.Any())
+                {
+                    //delete all cells
+                    foreach (var cell in firstCellList)
+                    {
+                        await Mediator.Send(new DeleteCell.Command { Cell = cell });
+                    }
+
+                    //delete all ships
+                    foreach (var ship in firstShips)
+                    {
+                        await Mediator.Send(new DeleteShip.Command { Ship = ship });
+                    }
+
+                    return Ok("The database cleanup was successfull!");
+                }
+                else
+                {
+                    //delete all cells
+                    foreach (var cell in firstCellList)
+                    {
+                        await Mediator.Send(new DeleteCell.Command { Cell = cell });
+                    }
+
+                    //delete all ships
+                    foreach (var ship in firstShips)
+                    {
+                        await Mediator.Send(new DeleteShip.Command { Ship = ship });
+                    }
+
+                    //delete all shipWrappers
+                    foreach (var shipWrapper in firstShipWrappers)
+                    {
+                        var newShipWrapper = _shipWrapperService.GetShipWrapper(shipWrapper.Id);
+                        await Mediator.Send(new DeleteShipWrapper.Command { ShipWrapper = newShipWrapper });
+                    }
+                    //delete all shipWrappers
+                    foreach (var shipWrapper in secondShipWrappers)
+                    {
+                        var newShipWrapper = _shipWrapperService.GetShipWrapper(shipWrapper.Id);
+                        await Mediator.Send(new DeleteShipWrapper.Command { ShipWrapper = newShipWrapper });
+                    }
+
+                    //delete game form table Game
+                    var gameId = _playerGameService.GetPlayerGame(firstPlayerId, secondPlayerId).GameId;
+                    var game = _gameService.GetGame(gameId);
+                    await Mediator.Send(new DeleteGame.Command { Game = game });
+
+                    //delete field from table Field
+                    var field = _fieldService.GetField(firstFieldId);
+                    await Mediator.Send(new DeleteField.Command { Field = field });
+
+                    //delete field from table Field
+                    var secondField = _fieldService.GetField(secondFieldId);
+                    await Mediator.Send(new DeleteField.Command { Field = secondField });
+
+                    return Ok("The database cleanup was successfull!");
+                }
+            }
+            catch(Exception ex)
+            {
+                return BadRequest($"The database cleanup failed! Error message - {ex.Message}");
+            }
+        }
     }
 }

@@ -382,5 +382,15 @@ namespace BLL.Services
 
             return false;
         }
+
+        public bool CheckIsCellsWithStateBusyOrHit(IEnumerable<Cell> cells)
+        {
+            var count = cells.Where(x => x.CellStateId == 2 || x.CellStateId == 3).Count();
+            if (count == 0)
+            {
+                return false;
+            }
+            return true;
+        }
     }
 }

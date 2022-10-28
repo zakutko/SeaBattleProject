@@ -1,4 +1,5 @@
 ﻿using DAL.Data;
+using DAL.Interfaces;
 using DAL.Models;
 using MediatR;
 

@@ -12,15 +12,17 @@ namespace BLL.Services
         {
             _repository = repository;
         }
-        public AppUser CreateNewAppUser(string id, bool isHit)
+
+        public AppUser CreateNewAppUser(string id, bool? isHit)
         {
             var appUser = _repository.GetById(id).Result;
-            return new AppUser { 
-                Id = appUser.Id, 
-                DisplayName = appUser.DisplayName, 
-                IsHit = isHit, 
-                UserName = appUser.UserName, 
-                Email = appUser.Email, 
+            return new AppUser
+            {
+                Id = appUser.Id,
+                DisplayName = appUser.DisplayName,
+                IsHit = isHit,
+                UserName = appUser.UserName,
+                Email = appUser.Email,
                 AccessFailedCount = appUser.AccessFailedCount,
                 ConcurrencyStamp = appUser.ConcurrencyStamp,
                 SecurityStamp = appUser.ConcurrencyStamp,
@@ -33,7 +35,12 @@ namespace BLL.Services
                 PhoneNumber = appUser.PhoneNumber,
                 PhoneNumberConfirmed = appUser.PhoneNumberConfirmed,
                 TwoFactorEnabled = appUser.TwoFactorEnabled
-                };
+            };
+        }
+
+        public string GetUsername(string playerId)
+        {
+            return _repository.GetById(playerId).Result.UserName;
         }
     }
 }

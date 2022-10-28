@@ -8,5 +8,6 @@ namespace BLL.Interfaces
         Game UpdateGame(int gameId, int gameStateId);
         IEnumerable<Game> GetGames();
         Game GetGame(int id);
+        Game GetNewGame(int id);
     }
 }
