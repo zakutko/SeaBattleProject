@@ -3,7 +3,7 @@ import FieldCell from "../field/FieldCell";
 import SecondPlayerFieldCell from "../field/SecondPlayerFieldCell";
 import "./game.css";
 import "../field/field.css";
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useState } from "react";
 import agent from "../../api/agent";
 import GameFieldForm from "./GameFieldForm";
 import EndOfTheGame from "./EndOfTheGame";
@@ -13,24 +13,24 @@ export default observer(function Game(){
     const [isHit, setIsHit] = useState(true);
     const [isEndOfTheGame, setIsEndOfTheGame] = useState(false);
     const [winnerUserName, setWinnerUserName] = useState("");
-    const [isPending, startTransition] = useTransition();
 
     useEffect(() => {
         const token = localStorage.getItem('token');
-        if (token) {
-            startTransition(() => {
-                agent.Games.numberOfReadyPlayers(token).then(response => {
-                    setNumberOfReadyPlayers(response.numberOfReadyPlayers);
-                });
-                agent.Games.priopity(token).then(response => {
-                    setIsHit(response.isHit);
-                })
-                agent.Games.endOfTheGame(token).then(response => {
-                    setWinnerUserName(response.winnerUserName);
-                    setIsEndOfTheGame(response.isEndOfTheGame);
-                })
-            })
-        }
+        const interval = setInterval(() => {
+            if (token) {
+                    agent.Games.numberOfReadyPlayers(token).then(response => {
+                        setNumberOfReadyPlayers(response.numberOfReadyPlayers);
+                    });
+                    agent.Games.priopity(token).then(response => {
+                        setIsHit(response.isHit);
+                    })
+                    agent.Games.endOfTheGame(token).then(response => {
+                        setWinnerUserName(response.winnerUserName);
+                        setIsEndOfTheGame(response.isEndOfTheGame);
+                    })
+            }
+        }, 2000);
+        return () => clearInterval(interval);
     }, [])
 
     return isEndOfTheGame ? (<EndOfTheGame winnerUserName={winnerUserName}/>) : (
