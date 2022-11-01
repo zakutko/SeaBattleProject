@@ -17,7 +17,7 @@ export default observer(function GameList() {
                 agent.Games.games(token).then(response => {
                     setGameList(response);
                 });
-            })
+            }, 1000)
             return () => clearInterval(interval);
         }
     }, [])
