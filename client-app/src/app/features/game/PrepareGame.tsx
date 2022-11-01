@@ -14,7 +14,7 @@ export default observer(function PrepareGame() {
     function onClick() {
         const token = localStorage.getItem('token');
         if (token) {
-            agent.Games.firstPlayerReady(token).then(response => {
+            agent.Games.isPlayerReady(token).then(response => {
                 setMessage(response.message);
             });
         }

@@ -2,6 +2,7 @@
 using BLL.Handlers.Cells;
 using BLL.Handlers.Fields;
 using BLL.Handlers.GameFields;
+using BLL.Handlers.GameHistories;
 using BLL.Handlers.Games;
 using BLL.Handlers.PlayerGames;
 using BLL.Handlers.Positions;
@@ -30,6 +31,7 @@ namespace WEB.Controllers
         private readonly IShipWrapperService _shipWrapperService;
         private readonly IAppUserService _appUserService;
         private readonly IShipService _shipService;
+        private readonly IGameHistoryService _gameHistoryService;
 
         public GameController(
             IGameService gameService, 
@@ -43,7 +45,8 @@ namespace WEB.Controllers
             IFieldService fieldService,
             IShipWrapperService shipWrapperService,
             IAppUserService appUserService,
-            IShipService shipService)
+            IShipService shipService,
+            IGameHistoryService gameHistoryService)
         {
             _gameService = gameService;
             _playerService = playerService;
@@ -57,6 +60,7 @@ namespace WEB.Controllers
             _shipWrapperService = shipWrapperService;
             _appUserService = appUserService;
             _shipService = shipService;
+            _gameHistoryService = gameHistoryService;
         }
 
         [HttpGet]
@@ -135,7 +139,8 @@ namespace WEB.Controllers
             var username = jwtSecurityToken.Claims.First(claim => claim.Type == "unique_name").Value;
             var secondPlayerId = _playerService.GetPlayerId(username);
             var firstPlayerId = _playerGameService.GetFirstPlayerId(gameId);
-            var playerGameId = _playerGameService.GetPlayerGameId(gameId, firstPlayerId);
+            var playerGame = _playerGameService.GetPlayerGame(firstPlayerId, null);
+
             var firstFieldId = _gameFieldService.GetFirstFieldId(gameId);
             var gameFieldId = _gameFieldService.GetGameFieldId(gameId, firstFieldId);
 
@@ -151,8 +156,8 @@ namespace WEB.Controllers
             await Mediator.Send(new CreateField.Command { Field = field });
 
             //update table PlayerGame
-            var playerGame = _playerGameService.UpdatePlayerGame(playerGameId, gameId, firstPlayerId, secondPlayerId);
-            await Mediator.Send(new UpdatePlayerGame.Command { PlayerGame = playerGame });
+            var newPlayerGame = _playerGameService.UpdatePlayerGame(playerGame, secondPlayerId);
+            await Mediator.Send(new UpdatePlayerGame.Command { PlayerGame = newPlayerGame });
 
             //update table GameField
             var gameField = _gameFieldService.UpdateGameField(gameFieldId, firstFieldId, field.Id, gameId);
@@ -327,12 +332,24 @@ namespace WEB.Controllers
             }
             var secondPlayerId = _playerGameService.GetSecondPlayerId(firstPlayerId);
 
-            var playerGame = _playerGameService.GetPlayerGame(firstPlayerId, secondPlayerId);
-            var newPlayerGame = _playerGameService.CreateNewPlayerGame(playerGame);
+            if (secondPlayerId == null)
+            {
+                var playerGame = _playerGameService.GetPlayerGame(firstPlayerId, null);
+                var newPlayerGame = _playerGameService.CreateNewPlayerGame(playerGame);
 
-            await Mediator.Send(new UpdatePlayerGame.Command { PlayerGame = newPlayerGame });
+                await Mediator.Send(new UpdatePlayerGame.Command { PlayerGame = newPlayerGame });
 
-            return Ok("Player is ready!");
+                return Ok("Player is ready!");
+            }
+            else
+            {
+                var playerGame = _playerGameService.GetPlayerGame(firstPlayerId, secondPlayerId);
+                var newPlayerGame = _playerGameService.CreateNewPlayerGame(playerGame);
+
+                await Mediator.Send(new UpdatePlayerGame.Command { PlayerGame = newPlayerGame });
+
+                return Ok("Player is ready!");
+            }
         }
 
         [HttpGet("isTwoPlayersReady")]
@@ -344,9 +361,20 @@ namespace WEB.Controllers
             var firstPlayerId = _playerService.GetPlayerId(username);
             var secondPlayerId = _playerGameService.GetSecondPlayerId(firstPlayerId);
 
-            var numberOfReadyPlayers = _playerGameService.GetNumberOfReadyPlayers(firstPlayerId, secondPlayerId);
-            var isReadyViewModel = new IsReadyViewModel { NumberOfReadyPlayers = numberOfReadyPlayers };
-            return Ok(isReadyViewModel);
+            if (secondPlayerId == null)
+            {
+                var playerGame = _playerGameService.GetPlayerGame(firstPlayerId, null);
+                var numberOfReadyPlayers = _playerGameService.GetNumberOfReadyPlayers(playerGame);
+                var isReadyViewModel = new IsReadyViewModel { NumberOfReadyPlayers = numberOfReadyPlayers };
+                return Ok(isReadyViewModel);
+            }
+            else
+            {
+                var playerGame = _playerGameService.GetPlayerGame(firstPlayerId, secondPlayerId);
+                var numberOfReadyPlayers = _playerGameService.GetNumberOfReadyPlayers(playerGame);
+                var isReadyViewModel = new IsReadyViewModel { NumberOfReadyPlayers = numberOfReadyPlayers };
+                return Ok(isReadyViewModel);
+            }
         }
 
         [HttpGet("game/secondPlayerCells")]
@@ -470,20 +498,40 @@ namespace WEB.Controllers
             var firstCellsWithStateBusyOrHit = _cellService.CheckIsCellsWithStateBusyOrHit(firstCellList);
             var secondIsCellsWithStateBusyOrHit = _cellService.CheckIsCellsWithStateBusyOrHit(secondCellList);
 
-            if (secondIsCellsWithStateBusyOrHit && firstCellsWithStateBusyOrHit)
+            var gameId = _playerGameService.GetPlayerGame(firstPlayerId, secondPlayerId).GameId;
+
+            if (secondIsCellsWithStateBusyOrHit && firstCellsWithStateBusyOrHit && _gameService.GetGame(gameId).GameStateId != 3)
             {
                 return Ok(new IsEndOfTheGameViewModel { IsEndOfTheGame = false, WinnerUserName = "" });
             }
-            var gameId = _playerGameService.GetPlayerGame(firstPlayerId, secondPlayerId).GameId;
+
             var game = _gameService.GetNewGame(gameId);
 
             if (!firstCellsWithStateBusyOrHit)
             {
                 await Mediator.Send(new UpdateGame.Command { Game = game });
+
+                if (_gameHistoryService.CheckIfExistGameHistoryByGameId(gameId) == false)
+                {
+                    var gameHistory = _gameHistoryService.CreateGameHistory(gameId, _appUserService.GetUsername(firstPlayerId), _appUserService.GetUsername(secondPlayerId), _gameStateService.GetGameState(3), _appUserService.GetUsername(secondPlayerId));
+                    await Mediator.Send(new CreateGameHistory.Command { GameHistory = gameHistory });
+                }
+
                 return Ok(new IsEndOfTheGameViewModel { IsEndOfTheGame = true, WinnerUserName = _appUserService.GetUsername(secondPlayerId) });
             }
-            await Mediator.Send(new UpdateGame.Command { Game = game });
-            return Ok(new IsEndOfTheGameViewModel { IsEndOfTheGame = true, WinnerUserName = username });
+            else
+            {
+                await Mediator.Send(new UpdateGame.Command { Game = game });
+
+                if (_gameHistoryService.CheckIfExistGameHistoryByGameId(gameId) == false)
+                {
+                    var gameHistory = _gameHistoryService.CreateGameHistory(gameId, _appUserService.GetUsername(firstPlayerId), _appUserService.GetUsername(secondPlayerId), _gameStateService.GetGameState(3), _appUserService.GetUsername(firstPlayerId));
+                    await Mediator.Send(new CreateGameHistory.Command { GameHistory = gameHistory });
+                }
+
+                await Mediator.Send(new UpdateGame.Command { Game = game });
+                return Ok(new IsEndOfTheGameViewModel { IsEndOfTheGame = true, WinnerUserName = username });
+            }
         }
 
         [HttpGet("game/clearingDb")]

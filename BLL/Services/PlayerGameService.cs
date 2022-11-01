@@ -18,9 +18,16 @@ namespace BLL.Services
             return new PlayerGame { GameId = gameId, FirstPlayerId = playerId };
         }
 
-        public PlayerGame UpdatePlayerGame(int playerGameId, int gameId, string firstPlayerId, string secondPlayerId)
+        public PlayerGame UpdatePlayerGame(PlayerGame playerGame, string secondPlayerId)
         {
-            return new PlayerGame { Id = playerGameId, GameId = gameId, FirstPlayerId = firstPlayerId, SecondPlayerId = secondPlayerId };
+            return new PlayerGame { 
+                Id = playerGame.Id, 
+                GameId = playerGame.GameId, 
+                FirstPlayerId = playerGame.FirstPlayerId, 
+                SecondPlayerId = secondPlayerId, 
+                IsReadyFirstPlayer = playerGame.IsReadyFirstPlayer,
+                IsReadySecondPlayer = playerGame.IsReadySecondPlayer
+            };
         }
 
         public int GetNumberOfPlayers(int id)
@@ -52,13 +59,13 @@ namespace BLL.Services
             return playerGameId;
         }
 
-        public string GetSecondPlayerId(string firstPlayerId)
+        public string? GetSecondPlayerId(string firstPlayerId)
         {
             var playerGame = _repository.GetAll().Result.Where(x => x.FirstPlayerId == firstPlayerId && x.SecondPlayerId != null || x.SecondPlayerId == firstPlayerId && x.FirstPlayerId != null).FirstOrDefault();
 
             if (playerGame == null) 
             {
-                throw new Exception("The second player has not connected yet!");
+                return null;
             }
             if (playerGame.FirstPlayerId == firstPlayerId)
             {
@@ -67,13 +74,8 @@ namespace BLL.Services
             return playerGame.FirstPlayerId;
         }
         
-        public int GetNumberOfReadyPlayers(string firstPlayerId, string secondPlayerId)
+        public int GetNumberOfReadyPlayers(PlayerGame playerGame)
         {
-            var playerGame = _repository.GetAll().Result.Where(x => 
-            x.FirstPlayerId == firstPlayerId && x.SecondPlayerId == secondPlayerId ||
-            x.FirstPlayerId == secondPlayerId && x.SecondPlayerId == firstPlayerId
-            ).FirstOrDefault();
-
             if (playerGame.IsReadyFirstPlayer == null && playerGame.IsReadySecondPlayer == null)
             {
                 return 0;
@@ -85,11 +87,13 @@ namespace BLL.Services
             return 2;
         }
 
-        public PlayerGame GetPlayerGame(string firstPlayerId, string secondPlayerId)
+        public PlayerGame GetPlayerGame(string firstPlayerId, string? secondPlayerId)
         {
             return _repository.GetAll().Result.Where(x => 
                 x.FirstPlayerId == firstPlayerId && x.SecondPlayerId == secondPlayerId ||
-                x.FirstPlayerId == secondPlayerId && x.SecondPlayerId == firstPlayerId
+                x.FirstPlayerId == secondPlayerId && x.SecondPlayerId == firstPlayerId ||
+                x.FirstPlayerId == firstPlayerId && x.SecondPlayerId == null ||
+                x.FirstPlayerId == secondPlayerId && x.SecondPlayerId == null
                 ).FirstOrDefault();   
         }
 
@@ -104,6 +108,7 @@ namespace BLL.Services
                     FirstPlayerId = playerGame.FirstPlayerId,
                     SecondPlayerId = playerGame.SecondPlayerId,
                     IsReadyFirstPlayer = true,
+                    IsReadySecondPlayer = playerGame.IsReadySecondPlayer
                 };
             }
             else

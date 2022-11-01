@@ -394,6 +394,10 @@ namespace BLL.Services
 
         public bool CheckIsCellsWithStateBusyOrHit(IEnumerable<Cell> cells)
         {
+            if (cells.Count() == 0)
+            {
+                return true;
+            }
             var count = cells.Where(x => x.CellStateId == 2 || x.CellStateId == 3).Count();
             if (count == 0)
             {

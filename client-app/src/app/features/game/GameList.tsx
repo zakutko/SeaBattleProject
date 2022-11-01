@@ -13,9 +13,12 @@ export default observer(function GameList() {
     useEffect(() => {
         const token = localStorage.getItem('token');
         if (token){
-            agent.Games.games(token).then(response => {
-                setGameList(response);
-            });
+            const interval = setInterval(() => {
+                agent.Games.games(token).then(response => {
+                    setGameList(response);
+                });
+            })
+            return () => clearInterval(interval);
         }
     }, [])
 

@@ -1,6 +1,7 @@
 ﻿using BLL.Handlers.Cells;
 using BLL.Handlers.Fields;
 using BLL.Handlers.GameFields;
+using BLL.Handlers.GameHistories;
 using BLL.Handlers.Games;
 using BLL.Handlers.PlayerGames;
 using BLL.Handlers.Positions;
@@ -32,6 +33,8 @@ namespace WEB.Extensions
             services.AddMediatR(typeof(DeleteShip.Handler).Assembly);
             services.AddMediatR(typeof(CreateShipWrapper.Handler).Assembly);
             services.AddMediatR(typeof(DeleteShipWrapper.Handler).Assembly);
+            services.AddMediatR(typeof(CreateGameHistory.Handler).Assembly);
+            services.AddMediatR(typeof(ListGameHistories.Handler).Assembly);
 
             services.AddScoped<IAppUserRepository, AppUserRepository>();
             services.AddScoped<IPositionRepository, PositionRepository>();
@@ -46,6 +49,7 @@ namespace WEB.Extensions
             services.AddScoped<IRepository<Field>, Repository<Field>>();
             services.AddScoped<IRepository<ShipWrapper>, Repository<ShipWrapper>>();
             services.AddScoped<IRepository<Ship>, Repository<Ship>>();
+            services.AddScoped<IRepository<GameHistory>, Repository<GameHistory>>();
 
             services.AddScoped<IGameService, GameService>();
             services.AddScoped<IPlayerService, PlayerService>();
@@ -59,6 +63,7 @@ namespace WEB.Extensions
             services.AddScoped<IShipWrapperService, ShipWrapperService>();
             services.AddScoped<IAppUserService, AppUserService>();
             services.AddScoped<IShipService, ShipService>();
+            services.AddScoped<IGameHistoryService, GameHistoryService>();
 
             return services;
         }

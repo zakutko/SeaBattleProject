@@ -3,7 +3,7 @@ import FieldCell from "../field/FieldCell";
 import SecondPlayerFieldCell from "../field/SecondPlayerFieldCell";
 import "./game.css";
 import "../field/field.css";
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useState } from "react";
 import agent from "../../api/agent";
 import GameFieldForm from "./GameFieldForm";
 import EndOfTheGame from "./EndOfTheGame";
@@ -13,12 +13,11 @@ export default observer(function Game(){
     const [isHit, setIsHit] = useState(true);
     const [isEndOfTheGame, setIsEndOfTheGame] = useState(false);
     const [winnerUserName, setWinnerUserName] = useState("");
-    const [isPending, startTransition] = useTransition();
 
     useEffect(() => {
         const token = localStorage.getItem('token');
         if (token) {
-            startTransition(() => {
+            const interval = setInterval(() => {
                 agent.Games.numberOfReadyPlayers(token).then(response => {
                     setNumberOfReadyPlayers(response.numberOfReadyPlayers);
                 });
@@ -29,7 +28,8 @@ export default observer(function Game(){
                     setWinnerUserName(response.winnerUserName);
                     setIsEndOfTheGame(response.isEndOfTheGame);
                 })
-            })
+            }, 1000);
+            return () => clearInterval(interval);
         }
     }, [])
 

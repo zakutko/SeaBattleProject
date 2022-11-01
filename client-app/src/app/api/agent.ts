@@ -27,7 +27,7 @@ const Games = {
     createShipOnField: (ship: ShipFormValues) => request.post<Ship>('/Game/prepareGame/createShipOnField', ship),
     cells: (token: string) => request.get<CellList[]>(`/Game/prepareGame?token=${token}`),
     numberOfReadyPlayers: (token: string) => request.get<IsTwoPlayersReady>(`/Game/isTwoPlayersReady?token=${token}`),
-    firstPlayerReady: (token: string) => request.get<IsPlayerReady>(`/Game/isPlayerReady?token=${token}`),
+    isPlayerReady: (token: string) => request.get<IsPlayerReady>(`/Game/isPlayerReady?token=${token}`),
     secondPlayerCells: (token: string) => request.get<CellList[]>(`/Game/game/secondPlayerCells?token=${token}`),
     fire: (shoot: ShootFormValues) => request.post<void>('Game/game/fire', shoot),
     priopity: (token: string) => request.get<IsHit>(`Game/game/priority?token=${token}`),

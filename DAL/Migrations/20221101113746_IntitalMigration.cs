@@ -77,6 +77,23 @@ namespace DAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "GameHistory",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    gameId = table.Column<int>(type: "int", nullable: false),
+                    firstPlayerName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    secondPlayerName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    gameStateName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    winnerName = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_GameHistory", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "GameState",
                 columns: table => new
                 {
@@ -570,6 +587,9 @@ namespace DAL.Migrations
 
             migrationBuilder.DropTable(
                 name: "GameField");
+
+            migrationBuilder.DropTable(
+                name: "GameHistory");
 
             migrationBuilder.DropTable(
                 name: "PlayerGame");

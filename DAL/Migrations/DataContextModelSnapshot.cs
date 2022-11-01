@@ -231,6 +231,43 @@ namespace DAL.Migrations
                     b.ToTable("GameField");
                 });
 
+            modelBuilder.Entity("DAL.Models.GameHistory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("FirstPlayerName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("firstPlayerName");
+
+                    b.Property<int>("GameId")
+                        .HasColumnType("int")
+                        .HasColumnName("gameId");
+
+                    b.Property<string>("GameStateName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("gameStateName");
+
+                    b.Property<string>("SecondPlayerName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("secondPlayerName");
+
+                    b.Property<string>("WinnerName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("winnerName");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("GameHistory");
+                });
+
             modelBuilder.Entity("DAL.Models.GameState", b =>
                 {
                     b.Property<int>("Id")

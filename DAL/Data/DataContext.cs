@@ -24,5 +24,6 @@ namespace DAL.Data
         public DbSet<ShipState> ShipStates { get; set; }
         public DbSet<ShipWrapper> ShipWrappers { get; set; }
         public DbSet<AppUser> AppUsers { get; set; }
+        public DbSet<GameHistory> GameHistories { get; set; }
     }
 }
