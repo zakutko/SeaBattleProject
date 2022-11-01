@@ -2,6 +2,7 @@ import { observer } from 'mobx-react'
 import { useEffect } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import Game from '../features/game/Game';
+import GameHistoryList from '../features/game/GameHistoryList';
 import GameList from '../features/game/GameList';
 import PrepareGame from '../features/game/PrepareGame';
 import HomePage from '../features/home/HomePage';
@@ -30,6 +31,7 @@ function App() {
       <Route path='/gameList' element = {<GameList />}/>
       <Route path='/prepareGame' element = {<PrepareGame />}/>
       <Route path='/game' element = {<Game />}/>
+      <Route path='/gameHistoryList' element ={<GameHistoryList />} />
     </Routes>   
   );
 }

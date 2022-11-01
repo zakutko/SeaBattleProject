@@ -17,8 +17,10 @@ export default observer(function NavBar() {
                 <Menu.Item>
                     <Button as={Link} to='/gameList' color="purple">Games</Button>
                 </Menu.Item>
+                <Menu.Item>
+                    <Button as={Link} to='/gameHistoryList' color="purple">History</Button>
+                </Menu.Item>
                 <Menu.Item position="right">
-                    <Menu.Item>{}</Menu.Item>
                     <Button onClick={() => {logout(); navigate("/")}} color='grey'>Logout</Button>
                 </Menu.Item>
             </Container>

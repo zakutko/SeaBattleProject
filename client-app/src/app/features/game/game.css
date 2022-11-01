@@ -83,3 +83,32 @@
 .winner {
     color: red;
 }
+
+.card {
+    max-width: 45%;
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 10px;
+    padding: 10px;
+}
+
+.gameList .createGameBtn {
+    margin-bottom: 20px;
+}
+
+.gameList .cards {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+}
+
+.gameList .cards .card .card-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.gameHistoryTable {
+    padding-top: 70px;
+}
+

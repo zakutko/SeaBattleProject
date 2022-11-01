@@ -1,6 +1,7 @@
 import axios, { AxiosResponse } from "axios";
 import { CellList } from "../models/cellsList";
 import { IsEndOfTheGame, IsHit, IsPlayerReady, IsTwoPlayersReady } from "../models/checks";
+import { GameHistoryList } from "../models/gameHistoryList";
 import { GameList } from "../models/gameList";
 import { Ship, ShipFormValues } from "../models/ship";
 import { ShootFormValues } from "../models/shoot";
@@ -35,6 +36,10 @@ const Games = {
     clearingDb: (token: string) => request.get<void>(`Game/game/clearingDb?token=${token}`)
 }
 
+const GameHistories = {
+    gameHistories: () => request.get<GameHistoryList[]>("/GameHistory")
+}
+
 const Account = {
     current: () => request.get<User>('/Account'),
     login: (user: UserFormValues) => request.post<User>('/Account/login', user),
@@ -43,6 +48,7 @@ const Account = {
 
 const agent = {
     Games,
+    GameHistories,
     Account
 }
 
