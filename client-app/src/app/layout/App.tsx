@@ -9,6 +9,7 @@ import HomePage from '../features/home/HomePage';
 import LoginForm from '../features/users/LoginFrom';
 import RegisterForm from '../features/users/RegisterForm';
 import { useStore } from '../stores/store';
+import "./style.css";
 
 function App() {
   const {commonStore, userStore} = useStore();
@@ -24,15 +25,17 @@ function App() {
   if(!commonStore.appLoaded) return (<div>App Loading...</div>)
 
   return (
-    <Routes>
-      <Route index element = {<HomePage />} />
-      <Route path='/login' element = {<LoginForm />} />
-      <Route path='/register' element = {<RegisterForm />}/>
-      <Route path='/gameList' element = {<GameList />}/>
-      <Route path='/prepareGame' element = {<PrepareGame />}/>
-      <Route path='/game' element = {<Game />}/>
-      <Route path='/gameHistoryList' element ={<GameHistoryList />} />
-    </Routes>   
+    <div>
+      <Routes>
+        <Route index element = {<HomePage />} />
+        <Route path='/login' element = {<LoginForm />} />
+        <Route path='/register' element = {<RegisterForm />}/>
+        <Route path='/gameList' element = {<GameList />}/>
+        <Route path='/prepareGame' element = {<PrepareGame />}/>
+        <Route path='/game' element = {<Game />}/>
+        <Route path='/gameHistoryList' element ={<GameHistoryList />} />
+      </Routes> 
+    </div>  
   );
 }
 export default observer(App);

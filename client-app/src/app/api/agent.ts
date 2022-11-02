@@ -5,6 +5,7 @@ import { GameHistoryList } from "../models/gameHistoryList";
 import { GameList } from "../models/gameList";
 import { Ship, ShipFormValues } from "../models/ship";
 import { ShootFormValues } from "../models/shoot";
+import { TopPlayers } from "../models/topPlayers";
 import { User, UserFormValues } from "../models/user";
 import { store } from "../stores/store";
 
@@ -37,7 +38,8 @@ const Games = {
 }
 
 const GameHistories = {
-    gameHistories: () => request.get<GameHistoryList[]>("/GameHistory")
+    gameHistories: () => request.get<GameHistoryList[]>("/GameHistory"),
+    topPlayers: () => request.get<TopPlayers>("/GameHistory/topPlayers")
 }
 
 const Account = {

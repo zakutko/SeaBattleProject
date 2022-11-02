@@ -375,7 +375,7 @@ namespace WEB.Controllers
                 var isReadyViewModel = new IsReadyViewModel { NumberOfReadyPlayers = numberOfReadyPlayers };
                 return Ok(isReadyViewModel);
             }
-        }
+        }   
 
         [HttpGet("game/secondPlayerCells")]
         public async Task<ActionResult<IEnumerable<CellListViewModel>>> GetAllCellsForGame(string token)
@@ -498,17 +498,24 @@ namespace WEB.Controllers
             var firstCellsWithStateBusyOrHit = _cellService.CheckIsCellsWithStateBusyOrHit(firstCellList);
             var secondIsCellsWithStateBusyOrHit = _cellService.CheckIsCellsWithStateBusyOrHit(secondCellList);
 
-            var gameId = _playerGameService.GetPlayerGame(firstPlayerId, secondPlayerId).GameId;
+            var gameId = 0;
+            if (secondPlayerId == null)
+            {
+                gameId = _playerGameService.GetPlayerGame(firstPlayerId, null).GameId;
+            }
+            else
+            {
+                gameId = _playerGameService.GetPlayerGame(firstPlayerId, secondPlayerId).GameId;
+            }
 
             if (secondIsCellsWithStateBusyOrHit && firstCellsWithStateBusyOrHit && _gameService.GetGame(gameId).GameStateId != 3)
             {
                 return Ok(new IsEndOfTheGameViewModel { IsEndOfTheGame = false, WinnerUserName = "" });
             }
 
-            var game = _gameService.GetNewGame(gameId);
-
             if (!firstCellsWithStateBusyOrHit)
             {
+                var game = _gameService.GetNewGame(gameId);
                 await Mediator.Send(new UpdateGame.Command { Game = game });
 
                 if (_gameHistoryService.CheckIfExistGameHistoryByGameId(gameId) == false)
@@ -521,6 +528,7 @@ namespace WEB.Controllers
             }
             else
             {
+                var game = _gameService.GetNewGame(gameId);
                 await Mediator.Send(new UpdateGame.Command { Game = game });
 
                 if (_gameHistoryService.CheckIfExistGameHistoryByGameId(gameId) == false)

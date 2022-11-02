@@ -11,6 +11,9 @@ export default observer(function GameHistoryList() {
     const [gameHistoryList, setGameHistoryList] = useState<GameHistoryList[]>([])
 
     useEffect(() => {
+        agent.GameHistories.gameHistories().then(response => {
+            setGameHistoryList(response);
+        });
         const interval = setInterval(() => {
             agent.GameHistories.gameHistories().then(response => {
                 setGameHistoryList(response);

@@ -14,6 +14,9 @@ export default observer(function GameList() {
     useEffect(() => {
         const token = localStorage.getItem('token');
         if (token){
+            agent.Games.games(token).then(response => {
+                setGameList(response);
+            });
             const interval = setInterval(() => {
                 agent.Games.games(token).then(response => {
                     setGameList(response);
@@ -47,7 +50,7 @@ export default observer(function GameList() {
             <div className="cards">
                 {gameList.map(game => (
                     <>
-                        <Card className="card" key={game.id}>
+                        <Card id="card" key={game.id}>
                             <CardContent>
                                 <Typography variant="h5" component="div">
                                     Game Id : <b>{game.id}</b>

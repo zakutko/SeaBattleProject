@@ -1,8 +1,23 @@
+.plug{
+    height: 5px;
+    margin-bottom: 65px;
+}
+
 .prepareGame {
-    padding-top: 50px;
-    margin-bottom: 40px;
     display: flex;
     justify-content: space-between;
+    padding: 10px;
+    margin-bottom: 20px;
+    
+    border-radius:2px;
+    border-left: 2px solid #f5f5f7;
+    border-bottom: 2px solid #f5f5f7;
+    border-right: 2px solid #adc0bc;
+    border-top: 2px solid #f4f4f6;
+
+    background-color: white;
+
+    box-shadow: rgb(38, 57, 77) 0px 20px 30px -10px;
 }
 
 .fieldForm {
@@ -30,16 +45,27 @@
 }
 
 .game {
-    padding-top: 5px;
-    margin-bottom: 20px;
+    padding: 10px;
+    margin-bottom: 10px;
     display: flex;
     justify-content: space-between;
+
+    border-radius:2px;
+    border-left: 2px solid #f5f5f7;
+    border-bottom: 2px solid #f5f5f7;
+    border-right: 2px solid #adc0bc;
+    border-top: 2px solid #f4f4f6;
+
+    background-color: white;
+
+    box-shadow: rgb(38, 57, 77) 0px 20px 30px -10px;
 }
 
 .help-colors {
     padding-top: 5px;
     display: flex;
     justify-content: space-around;
+    margin-bottom: 10px;
 }
 
 .block {
@@ -84,12 +110,14 @@
     color: red;
 }
 
-.card {
+#card {
     max-width: 45%;
     display: flex;
     justify-content: space-around;
     margin-bottom: 10px;
     padding: 10px;
+
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;
 }
 
 .gameList .createGameBtn {
@@ -112,3 +140,11 @@
     padding-top: 70px;
 }
 
+.prepareGameButton .prepareGameBtn {
+    background-color: red;
+    color: white;
+}
+
+.endOfTheGame .header {
+    color: white;
+}

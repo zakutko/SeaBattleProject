@@ -24,6 +24,7 @@ export default observer(function PrepareGame() {
 
     return (
         <>
+        <div className="plug"></div>
         <div className="prepareGame">
             <div className="field">
                 <FieldCell />
@@ -33,7 +34,7 @@ export default observer(function PrepareGame() {
             </div>
         </div>
         <div className="prepareGameButton">
-            <Button onClick={onClick} color="purple" size="large">I'm ready</Button>
+            <Button className="prepareGameBtn" onClick={onClick} size="large">I'm ready</Button>
         </div>  
         </>
     )

@@ -1,5 +1,5 @@
 .winner {
-    padding-top: 80px;
+    padding: 80px 30px 30px 30px; 
 }
 
 .winner .winner-title {
@@ -9,7 +9,7 @@
     text-align: center;
     text-transform: uppercase;
 
-    color: black;
+    color: #9040c2;
 }
 
 .winner .winner-categories {
@@ -26,20 +26,23 @@
     min-width: 30%;
     text-align: center;
     margin-top: 30px;
-    border: 1px solid #cd7f32;
+    border: 3px solid #cd7f32;
+    padding: 5px;
 }
 
 .winner .winner-categories .second-place {
     min-width: 30%;
     text-align: center;
     margin-top: 30px;
-    border: 1px solid #c0c0c0;
+    border: 3px solid #c0c0c0;
+    padding: 5px;
 }
 
 .winner .winner-categories .first-place {
     min-width: 30%;
     text-align: center;
-    border: 1px solid #ffd700;
+    border: 3px solid #ffd700;
+    padding: 5px;
 }
 
 .winner .winner-categories .third-place .third-place-title {
@@ -115,19 +118,19 @@
     font-weight: 400;
     font-size: 50px;
 
-    color: black;
+    color: #cd7f32;
 }
 
 .winner .winner-categories .second-place .second-place-number-of-wins {
     font-weight: 400;
     font-size: 50px;
 
-    color: black;
+    color: #c0c0c0;
 }
 
 .winner .winner-categories .first-place .first-place-number-of-wins {
     font-weight: 400;
     font-size: 50px;
 
-    color: black;
+    color: #ffd700;
 }

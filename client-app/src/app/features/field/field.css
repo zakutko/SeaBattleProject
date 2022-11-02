@@ -46,3 +46,8 @@
     margin-right: -50%;
     transform: translate(-50%, -50%);
 }
+
+.fieldFormBtn {
+    background-color: #9040c2;
+    color: white;
+}

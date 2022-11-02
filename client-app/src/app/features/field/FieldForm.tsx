@@ -5,6 +5,7 @@ import MyTextInput from "../../common/form/MyTextInput";
 import { useStore } from "../../stores/store";
 import { FormControl, FormControlLabel, Radio, RadioGroup } from "@mui/material";
 import { useNavigate } from "react-router";
+import "./field.css";
 
 export default observer(function FieldForm(){
     const {shipStore} = useStore();
