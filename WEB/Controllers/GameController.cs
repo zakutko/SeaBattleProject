@@ -508,7 +508,7 @@ namespace WEB.Controllers
                 gameId = _playerGameService.GetPlayerGame(firstPlayerId, secondPlayerId).GameId;
             }
 
-            if (secondIsCellsWithStateBusyOrHit && firstCellsWithStateBusyOrHit && _gameService.GetGame(gameId).GameStateId != 3)
+            if (secondIsCellsWithStateBusyOrHit && firstCellsWithStateBusyOrHit && _gameService.GetGame(gameId).GameStateId == 2)
             {
                 return Ok(new IsEndOfTheGameViewModel { IsEndOfTheGame = false, WinnerUserName = "" });
             }

@@ -25,7 +25,6 @@ export default observer(function GameHistoryList() {
     return (
         <>
         <NavBar />
-
         <Winners />
         
         <div className="gameHistoryTable">
