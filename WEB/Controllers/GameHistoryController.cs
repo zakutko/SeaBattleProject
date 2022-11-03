@@ -37,6 +37,8 @@ namespace WEB.Controllers
                 });
             }
 
+            gameHistoryViewModels.Reverse();
+
             return Ok(gameHistoryViewModels);
         }
 

@@ -1,13 +1,21 @@
 .plug{
-    height: 5px;
-    margin-bottom: 65px;
+    height: 70px;
+    display: flex;
+    justify-content: right;
+    align-items: center;
+}
+
+.plug .deleteGameBtn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .prepareGame {
     display: flex;
     justify-content: space-between;
-    padding: 10px;
-    margin-bottom: 20px;
+    padding: 10px 10px 10px 0px;
+    margin-bottom: 5px;
     
     border-radius:2px;
     border-left: 2px solid #f5f5f7;
@@ -38,6 +46,8 @@
     display: flex;
     justify-content: center;
     align-items: center;
+
+    padding-top: 20px;
 }
 
 .gameList {
@@ -45,10 +55,10 @@
 }
 
 .game {
-    padding: 10px;
-    margin-bottom: 10px;
+    padding: 0px 25px 25px 0px;
     display: flex;
     justify-content: space-between;
+    margin-bottom: 5px;
 
     border-radius:2px;
     border-left: 2px solid #f5f5f7;
@@ -96,6 +106,35 @@
 .gameFieldForm {
     display: flex;
     justify-content: center;
+}
+
+.gameFieldForm .waiting {
+    position: relative;
+    padding-top: 25px;
+
+    font-weight: 700;
+    text-align: center;
+    font-size: 40px;
+    text-transform: uppercase;
+    letter-spacing: 5px;
+
+    background: linear-gradient(90deg, #000, rgb(99, 99, 99), #000);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-repeat: no-repeat;
+    background-size: 80%;
+
+    animation: shine 5s linear infinite;
+}
+
+@keyframes shine {
+    0% {
+      background-position-x: -500%;
+    }
+    100% {
+      background-position-x: 500%;
+    }
 }
 
 .endOfTheGame {

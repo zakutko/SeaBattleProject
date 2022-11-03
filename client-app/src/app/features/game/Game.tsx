@@ -7,28 +7,43 @@ import { useEffect, useState } from "react";
 import agent from "../../api/agent";
 import GameFieldForm from "./GameFieldForm";
 import EndOfTheGame from "./EndOfTheGame";
+import { CellList } from "../../models/cellsList";
 
 export default observer(function Game(){
     const [numberOfReadyPlayers, setNumberOfReadyPlayers] = useState(0);
     const [isHit, setIsHit] = useState(true);
     const [isEndOfTheGame, setIsEndOfTheGame] = useState(false);
     const [winnerUserName, setWinnerUserName] = useState("");
+    const [cellList, setCellList] = useState<CellList[]>([]);
+    const [secondCellList, setSecondCellList] = useState<CellList[]>([]);
 
     useEffect(() => {
         const token = localStorage.getItem('token');
         if (token) {
+            agent.Games.cells(token).then(response => {
+                setCellList(response);
+            });
+            agent.Games.secondPlayerCells(token).then(response => {
+                setSecondCellList(response);
+            });
             const interval = setInterval(() => {
                 agent.Games.numberOfReadyPlayers(token).then(response => {
                     setNumberOfReadyPlayers(response.numberOfReadyPlayers);
                 });
                 agent.Games.priopity(token).then(response => {
                     setIsHit(response.isHit);
-                })
+                });
                 agent.Games.endOfTheGame(token).then(response => {
                     setWinnerUserName(response.winnerUserName);
                     setIsEndOfTheGame(response.isEndOfTheGame);
-                })
-            }, 1000);
+                });
+                agent.Games.cells(token).then(response => {
+                    setCellList(response);
+                });
+                agent.Games.secondPlayerCells(token).then(response => {
+                    setSecondCellList(response);
+                });
+            }, 1500);
             return () => clearInterval(interval);
         }
     }, [])
@@ -49,19 +64,19 @@ export default observer(function Game(){
             </div>
             <div className="game">
                 <div className="field">
-                    <FieldCell />
+                    <FieldCell cellList={cellList}/>
                 </div>
                 <div className="field">
-                    <SecondPlayerFieldCell />
+                    <SecondPlayerFieldCell secondCellList={secondCellList}/>
                 </div>
             </div>
             <div className="gameFieldForm">
                 {numberOfReadyPlayers === 1 &&
-                    <h1>Waiting an opponent!</h1>
+                    <p className="waiting">Waiting an opponent!</p>
                 }
                 {numberOfReadyPlayers === 2 &&
                     <>
-                    {isHit ? (<GameFieldForm />) : (<div><h1>Enemy fire!</h1></div>)}
+                    {isHit ? (<GameFieldForm />) : (<p className="waiting">Enemy fire!</p>)}
                     </>
                 }
             </div>

@@ -1,5 +1,5 @@
 export interface IsHit {
-    isHit: boolean
+    isHit: boolean;
 }
 
 export interface IsPlayerReady {
@@ -7,10 +7,15 @@ export interface IsPlayerReady {
 }
 
 export interface IsTwoPlayersReady {
-    numberOfReadyPlayers: number
+    numberOfReadyPlayers: number;
 }
 
 export interface IsEndOfTheGame {
-    isEndOfTheGame: boolean
-    winnerUserName: string
+    isEndOfTheGame: boolean;
+    winnerUserName: string;
+}
+
+export interface IsGameOwner {
+    isGameOwner: boolean;
+    isSecondPlayerConnected: boolean;
 }

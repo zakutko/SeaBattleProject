@@ -15,7 +15,7 @@ export default observer(function HomePage(){
                 </Header>
                 {userStore.isLoggedIn ? (
                     <>
-                        <NavBar/>
+                        <NavBar />
                         <Header as={'h2'} inverted content="Serhii Zakutko" color="purple"/>
                     </>
                 ) : (

@@ -1,8 +1,9 @@
 import { observer } from "mobx-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { Button } from "semantic-ui-react";
 import agent from "../../api/agent";
+import { CellList } from "../../models/cellsList";
 import FieldCell from "../field/FieldCell";
 import FieldForm from "../field/FieldForm";
 import "./game.css";
@@ -10,6 +11,29 @@ import "./game.css";
 export default observer(function PrepareGame() {
     const navigate = useNavigate();
     const [message, setMessage] = useState("");
+    const [cellList, setCellList] = useState<CellList[]>([]);
+    const [isGameOwner, setIsGameOwner] = useState(true);
+    const [isSecondPlayerConnected, setIsSecondPlayerConnected] = useState(false);
+
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (token){
+            agent.Games.isGameOwner(token).then(response => {
+                setIsGameOwner(response.isGameOwner);
+                setIsSecondPlayerConnected(response.isSecondPlayerConnected);
+            });
+            const interval = setInterval(() => {
+                    agent.Games.cells(token).then(response => {
+                        setCellList(response);
+                    });
+                    agent.Games.isGameOwner(token).then(response => {
+                        setIsGameOwner(response.isGameOwner);
+                        setIsSecondPlayerConnected(response.isSecondPlayerConnected);
+                    });
+            }, 1000)
+            return () => clearInterval(interval);
+        }
+    }, [])
 
     function onClick() {
         const token = localStorage.getItem('token');
@@ -17,17 +41,32 @@ export default observer(function PrepareGame() {
             agent.Games.isPlayerReady(token).then(response => {
                 setMessage(response.message);
             });
+            agent.Games.cells(token).then(response => {
+                setCellList(response);
+            });
         }
         console.log(message);
         navigate("/game");
     }
 
+    function onClickDelete() {
+        const token = localStorage.getItem('token');
+        if (token) {
+            agent.Games.deleteGame(token);
+        }
+        navigate("/gameList");
+    }
+
     return (
         <>
-        <div className="plug"></div>
+        <div className="plug">
+            {isGameOwner && !isSecondPlayerConnected ? (
+                <Button className="deleteGameBtn" onClick={onClickDelete} size="large">Delete game</Button>
+            ) : (<div></div>)}
+        </div>
         <div className="prepareGame">
             <div className="field">
-                <FieldCell />
+                <FieldCell cellList={cellList}/>
             </div>
             <div className="fieldForm">
                 <FieldForm />

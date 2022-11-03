@@ -130,6 +130,90 @@ namespace WEB.Controllers
             return Ok();
         }
 
+        [HttpGet("isGameOwner")]
+        public async Task<ActionResult<IsGameOwnerViewModel>> IsGameOwner(string token)
+        {
+            var handler = new JwtSecurityTokenHandler();
+            var jwtSecurityToken = handler.ReadJwtToken(token);
+            var username = jwtSecurityToken.Claims.First(claim => claim.Type == "unique_name").Value;
+            var playerId = _playerService.GetPlayerId(username);
+
+            var isGameOwner = _playerGameService.IsGameOwner(playerId);
+            var isSecondPlayerConnected = _playerGameService.IsSecondPlayerConnected(playerId);
+            return Ok(new IsGameOwnerViewModel { IsGameOwner = isGameOwner, IsSecondPlayerConnected = isSecondPlayerConnected });
+        }
+
+        [HttpGet("deleteGame")]
+        public async Task<IActionResult> DeleteGame(string token)
+        {
+            var handler = new JwtSecurityTokenHandler();
+            var jwtSecurityToken = handler.ReadJwtToken(token);
+            var username = jwtSecurityToken.Claims.First(claim => claim.Type == "unique_name").Value;
+            var firstPlayerId = _playerService.GetPlayerId(username);
+
+            var gameId = _playerGameService.GetPlayerGame(firstPlayerId, null).GameId;
+
+            var fieldId = _fieldService.GetFieldId(firstPlayerId);
+            var shipIds = _shipWrapperService.GetAllShipIdsByFieldId(fieldId);
+            var ships = _shipService.GetAllShips(shipIds);
+            var shipWrappers = _shipWrapperService.GetAllShipWrappersByFiedlId(fieldId);
+            var positions = _positionService.GetAllPoitionsByShipWrapperId(shipWrappers);
+            var cellsIds = _cellService.GetAllCellsIdByPositions(positions);
+            var cellList = _cellService.GetAllCellsByCellIds(cellsIds);
+
+            if (cellList.Any())
+            {
+                //delete all cells
+                foreach (var cell in cellList)
+                {
+                    await Mediator.Send(new DeleteCell.Command { Cell = cell });
+                }
+
+                //delete all ships
+                foreach (var ship in ships)
+                {
+                    await Mediator.Send(new DeleteShip.Command { Ship = ship });
+                }
+
+                //delete all shipWrappers
+                foreach (var shipWrapper in shipWrappers)
+                {
+                    var newShipWrapper = _shipWrapperService.GetShipWrapper(shipWrapper.Id);
+                    await Mediator.Send(new DeleteShipWrapper.Command { ShipWrapper = newShipWrapper });
+                }
+
+                //delete game from table Game
+                var game = _gameService.GetGame(gameId);
+                await Mediator.Send(new DeleteGame.Command { Game = game });
+
+                //delete field from table Field
+                var field = _fieldService.GetField(fieldId);
+                await Mediator.Send(new DeleteField.Command { Field = field });
+
+                //update appUser
+                var appUser = _appUserService.CreateNewAppUser(firstPlayerId, null);
+                await Mediator.Send(new UpdateAppUser.Command { AppUser = appUser });
+
+                return Ok();
+            }
+            else
+            {
+                //delete game from table Game
+                var game = _gameService.GetGame(gameId);
+                await Mediator.Send(new DeleteGame.Command { Game = game });
+
+                //delete field from table Field
+                var field = _fieldService.GetField(fieldId);
+                await Mediator.Send(new DeleteField.Command { Field = field });
+
+                //update appUser
+                var appUser = _appUserService.CreateNewAppUser(firstPlayerId, null);
+                await Mediator.Send(new UpdateAppUser.Command { AppUser = appUser });
+
+                return Ok();
+            }
+        }
+
         [HttpGet("joinSecondPlayer")]
         public async Task<IActionResult> JoinSecondPlayer(int gameId, string token)
         {
@@ -513,9 +597,9 @@ namespace WEB.Controllers
                 return Ok(new IsEndOfTheGameViewModel { IsEndOfTheGame = false, WinnerUserName = "" });
             }
 
+            var game = _gameService.GetNewGame(gameId);
             if (!firstCellsWithStateBusyOrHit)
             {
-                var game = _gameService.GetNewGame(gameId);
                 await Mediator.Send(new UpdateGame.Command { Game = game });
 
                 if (_gameHistoryService.CheckIfExistGameHistoryByGameId(gameId) == false)
@@ -524,11 +608,11 @@ namespace WEB.Controllers
                     await Mediator.Send(new CreateGameHistory.Command { GameHistory = gameHistory });
                 }
 
+                await Mediator.Send(new UpdateGame.Command { Game = game });
                 return Ok(new IsEndOfTheGameViewModel { IsEndOfTheGame = true, WinnerUserName = _appUserService.GetUsername(secondPlayerId) });
             }
-            else
+            else if(!secondIsCellsWithStateBusyOrHit)
             {
-                var game = _gameService.GetNewGame(gameId);
                 await Mediator.Send(new UpdateGame.Command { Game = game });
 
                 if (_gameHistoryService.CheckIfExistGameHistoryByGameId(gameId) == false)
@@ -540,6 +624,7 @@ namespace WEB.Controllers
                 await Mediator.Send(new UpdateGame.Command { Game = game });
                 return Ok(new IsEndOfTheGameViewModel { IsEndOfTheGame = true, WinnerUserName = username });
             }
+            return Ok(new IsEndOfTheGameViewModel { IsEndOfTheGame = false, WinnerUserName = "" });
         }
 
         [HttpGet("game/clearingDb")]
