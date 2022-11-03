@@ -13,5 +13,7 @@ namespace BLL.Interfaces
         int GetNumberOfReadyPlayers(PlayerGame playerGame);
         PlayerGame GetPlayerGame(string firstPlayerId, string? secondPlayerId);
         PlayerGame CreateNewPlayerGame(PlayerGame playerGame);
+        bool IsGameOwner(string playerId);
+        bool IsSecondPlayerConnected(string playerId);
     }
 }

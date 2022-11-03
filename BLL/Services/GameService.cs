@@ -20,7 +20,7 @@ namespace BLL.Services
 
         public Game UpdateGame(int gameId, int gameStateId)
         {
-            return new Game { Id = gameId, GameStateId = 2 };
+            return new Game { Id = gameId, GameStateId = gameStateId };
         }
 
         public IEnumerable<Game> GetGames()

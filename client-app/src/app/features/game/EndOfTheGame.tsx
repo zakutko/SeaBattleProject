@@ -19,10 +19,10 @@ export default observer(function EndOfTheGame(props: any){
         <Confetti />
         <div className="endOfTheGame">
             <div>
-                <h1 className="text-white display-3 fw-bold mt-5 text-center">
+                <h1 className="header">
                     Congratulations!
                 </h1>
-                <h2>Winner is <span className="winner">{props.winnerUserName}</span>!</h2>
+                <h2 className="header">Winner is<span className="winner">{props.winnerUserName}</span>!</h2>
                 <Button onClick={onClick} as={Link} to={"/"} color="purple">Back to home page</Button>
             </div>
         </div>

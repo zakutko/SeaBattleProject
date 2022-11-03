@@ -1,6 +1,5 @@
 import { ErrorMessage, Formik } from "formik";
 import { observer } from "mobx-react";
-import { useNavigate } from "react-router";
 import { Form, Label } from "semantic-ui-react";
 import MyTextInput from "../../common/form/MyTextInput";
 import { useStore } from "../../stores/store";
@@ -9,7 +8,6 @@ import "./game.css";
 export default observer(function GameFieldForm(){
     const {shootStore} = useStore();
     const token = localStorage.getItem('token');
-    const navigate = useNavigate();
 
     const onSubmit = async (values, {setErrors}) => {
         shootStore.fire(values)
@@ -24,7 +22,7 @@ export default observer(function GameFieldForm(){
                 onSubmit = {onSubmit}
                 >
                 {({ handleSubmit, isSubmitting, errors}) => (
-                <Form className="form" onSubmit={() => {handleSubmit(); navigate(0);}}>
+                <Form className="form" onSubmit={() => {handleSubmit()}}>
                     <Form.Group>
                         <MyTextInput name='x' placeholder='X' label="X:"/>
                         <MyTextInput name='y' placeholder='Y' label="Y:"/>

@@ -1,9 +1,11 @@
 import axios, { AxiosResponse } from "axios";
 import { CellList } from "../models/cellsList";
-import { IsEndOfTheGame, IsHit, IsPlayerReady, IsTwoPlayersReady } from "../models/checks";
+import { IsEndOfTheGame, IsGameOwner, IsHit, IsPlayerReady, IsTwoPlayersReady } from "../models/checks";
+import { GameHistoryList } from "../models/gameHistoryList";
 import { GameList } from "../models/gameList";
 import { Ship, ShipFormValues } from "../models/ship";
 import { ShootFormValues } from "../models/shoot";
+import { TopPlayers } from "../models/topPlayers";
 import { User, UserFormValues } from "../models/user";
 import { store } from "../stores/store";
 
@@ -22,7 +24,9 @@ const request = {
 
 const Games = {
     games: (token: string) => request.get<GameList[]>(`/Game?token=${token}`),
-    createGame: (token: string) => request.get<void>(`Game/createGame?token=${token}`),
+    createGame: (token: string) => request.get<void>(`/Game/createGame?token=${token}`),
+    isGameOwner: (token: string) => request.get<IsGameOwner>(`/Game/isGameOwner?token=${token}`),
+    deleteGame: (token: string) => request.get<void>(`/Game/deleteGame?token=${token}`),
     joinSecondPlayer: (id: number, token: string) => request.get<void>(`Game/joinSecondPlayer?gameId=${id}&&token=${token}`),
     createShipOnField: (ship: ShipFormValues) => request.post<Ship>('/Game/prepareGame/createShipOnField', ship),
     cells: (token: string) => request.get<CellList[]>(`/Game/prepareGame?token=${token}`),
@@ -35,6 +39,11 @@ const Games = {
     clearingDb: (token: string) => request.get<void>(`Game/game/clearingDb?token=${token}`)
 }
 
+const GameHistories = {
+    gameHistories: () => request.get<GameHistoryList[]>("/GameHistory"),
+    topPlayers: () => request.get<TopPlayers>("/GameHistory/topPlayers")
+}
+
 const Account = {
     current: () => request.get<User>('/Account'),
     login: (user: UserFormValues) => request.post<User>('/Account/login', user),
@@ -43,6 +52,7 @@ const Account = {
 
 const agent = {
     Games,
+    GameHistories,
     Account
 }
 

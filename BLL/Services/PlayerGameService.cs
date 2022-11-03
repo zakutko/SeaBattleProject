@@ -124,5 +124,27 @@ namespace BLL.Services
                 };
             }
         }
+
+        public bool IsGameOwner(string playerId)
+        {
+            var playerGame = _repository.GetAll().Result.Where(x => x.FirstPlayerId == playerId || x.SecondPlayerId == playerId).FirstOrDefault();
+
+            if (playerGame.FirstPlayerId == playerId)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public bool IsSecondPlayerConnected(string playerId)
+        {
+            var playerGame = _repository.GetAll().Result.Where(x => x.FirstPlayerId == playerId || x.SecondPlayerId == playerId).FirstOrDefault();
+
+            if (playerGame.FirstPlayerId == playerId && playerGame.SecondPlayerId == null)
+            {
+                return false;
+            }
+            return true;
+        }
     }
 }
