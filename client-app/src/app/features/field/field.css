@@ -1,0 +1,53 @@
+.cell {
+    width: 50px;
+    height: 50px;
+    background-color: rgb(205, 205, 205);
+    border: 2px solid black;
+    display: inline-block;
+    margin-right: -2px;
+}
+
+.cellGreen {
+    background-color: green;
+}
+
+.cellGrey {
+    background-color: grey;
+}
+
+.cellOrange {
+    background-color: orange;
+}
+
+.cellPurple {
+    background-color: purple;
+}
+
+.cellRed {
+    background-color: red;
+}
+
+.rowCell {
+    margin-bottom: -8px;
+}
+
+.cellNumber {
+    width: 50px;
+    height: 50px;
+    display: inline-block;
+    margin-right: -2px;
+    position: relative;
+}
+
+.cellNumber p {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-right: -50%;
+    transform: translate(-50%, -50%);
+}
+
+.fieldFormBtn {
+    background-color: #9040c2;
+    color: white;
+}
