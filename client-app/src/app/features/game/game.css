@@ -187,3 +187,22 @@
 .endOfTheGame .header {
     color: white;
 }
+
+input {
+    background: #f2f2f2;
+    border: 0;
+    border-radius: 5px;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.error-container {
+    width: 50%;
+}
+
+p.error {
+    text-align: left;
+    font-size: 10px;
+    color: red;
+    margin-bottom: -10px;
+}

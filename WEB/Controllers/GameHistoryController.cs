@@ -1,6 +1,5 @@
 ﻿using BLL.Handlers.GameHistories;
 using BLL.Interfaces;
-using DAL.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WEB.ViewModels;
