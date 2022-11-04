@@ -392,9 +392,9 @@ namespace BLL.Services
             return false;
         }
 
-        public bool CheckIsCellsWithStateBusyOrHit(IEnumerable<Cell> cells)
+        public bool CheckIsCellsWithStateBusyOrHit(IEnumerable<Cell>? cells, int gameStateId)
         {
-            if (cells.Count() == 0)
+            if (cells == null && gameStateId != 3 || cells.Count() == 0 && gameStateId != 3)
             {
                 return true;
             }

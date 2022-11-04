@@ -13,6 +13,6 @@ namespace BLL.Interfaces
         Cell CreateNewCell(int id, int x, int y, int cellStateId, bool isDestroyed);
         Cell GetCell(int x, int y, IEnumerable<Cell> cells);
         bool CheckIfTheShipIsDestroyed(IEnumerable<Cell> cells);
-        bool CheckIsCellsWithStateBusyOrHit(IEnumerable<Cell> cells);
+        bool CheckIsCellsWithStateBusyOrHit(IEnumerable<Cell>? cells, int gameStateId);
     }
 }

@@ -573,58 +573,92 @@ namespace WEB.Controllers
             var firstCellList = _cellService.GetAllCellsByCellIds(firstCellsIds);
 
             var secondPlayerId = _playerGameService.GetSecondPlayerId(firstPlayerId);
-            var secondFieldId = _fieldService.GetFieldId(secondPlayerId);
-            var secondShipWrappers = _shipWrapperService.GetAllShipWrappersByFiedlId(secondFieldId);
-            var secondPositions = _positionService.GetAllPoitionsByShipWrapperId(secondShipWrappers);
-            var secondCellsIds = _cellService.GetAllCellsIdByPositions(secondPositions);
-            var secondCellList = _cellService.GetAllCellsByCellIds(secondCellsIds);
-
-            var firstCellsWithStateBusyOrHit = _cellService.CheckIsCellsWithStateBusyOrHit(firstCellList);
-            var secondIsCellsWithStateBusyOrHit = _cellService.CheckIsCellsWithStateBusyOrHit(secondCellList);
-
-            var gameId = 0;
             if (secondPlayerId == null)
             {
-                gameId = _playerGameService.GetPlayerGame(firstPlayerId, null).GameId;
+                var gameId = _playerGameService.GetPlayerGame(firstPlayerId, null).GameId;
+                var firstCellsWithStateBusyOrHit = _cellService.CheckIsCellsWithStateBusyOrHit(firstCellList, gameId);
+                var secondIsCellsWithStateBusyOrHit = _cellService.CheckIsCellsWithStateBusyOrHit(null, gameId);
+
+                if (secondIsCellsWithStateBusyOrHit && firstCellsWithStateBusyOrHit && _gameService.GetGame(gameId).GameStateId == 2)
+                {
+                    return Ok(new IsEndOfTheGameViewModel { IsEndOfTheGame = false, WinnerUserName = "" });
+                }
+                var game = _gameService.GetNewGame(gameId);
+                if (!firstCellsWithStateBusyOrHit)
+                {
+                    await Mediator.Send(new UpdateGame.Command { Game = game });
+
+                    if (_gameHistoryService.CheckIfExistGameHistoryByGameId(gameId) == false)
+                    {
+                        var gameHistory = _gameHistoryService.CreateGameHistory(gameId, _appUserService.GetUsername(firstPlayerId), _appUserService.GetUsername(secondPlayerId), _gameStateService.GetGameState(3), _appUserService.GetUsername(secondPlayerId));
+                        await Mediator.Send(new CreateGameHistory.Command { GameHistory = gameHistory });
+                    }
+
+                    await Mediator.Send(new UpdateGame.Command { Game = game });
+                    return Ok(new IsEndOfTheGameViewModel { IsEndOfTheGame = true, WinnerUserName = _appUserService.GetUsername(secondPlayerId) });
+                }
+
+                else if (!secondIsCellsWithStateBusyOrHit)
+                {
+                    await Mediator.Send(new UpdateGame.Command { Game = game });
+
+                    if (_gameHistoryService.CheckIfExistGameHistoryByGameId(gameId) == false)
+                    {
+                        var gameHistory = _gameHistoryService.CreateGameHistory(gameId, _appUserService.GetUsername(firstPlayerId), _appUserService.GetUsername(secondPlayerId), _gameStateService.GetGameState(3), _appUserService.GetUsername(firstPlayerId));
+                        await Mediator.Send(new CreateGameHistory.Command { GameHistory = gameHistory });
+                    }
+
+                    await Mediator.Send(new UpdateGame.Command { Game = game });
+                    return Ok(new IsEndOfTheGameViewModel { IsEndOfTheGame = true, WinnerUserName = username });
+                }
+                return Ok(new IsEndOfTheGameViewModel { IsEndOfTheGame = false, WinnerUserName = "" });
             }
             else
             {
-                gameId = _playerGameService.GetPlayerGame(firstPlayerId, secondPlayerId).GameId;
-            }
+                var gameId = _playerGameService.GetPlayerGame(firstPlayerId, secondPlayerId).GameId;
+                var secondFieldId = _fieldService.GetFieldId(secondPlayerId);
+                var secondShipWrappers = _shipWrapperService.GetAllShipWrappersByFiedlId(secondFieldId);
+                var secondPositions = _positionService.GetAllPoitionsByShipWrapperId(secondShipWrappers);
+                var secondCellsIds = _cellService.GetAllCellsIdByPositions(secondPositions);
+                var secondCellList = _cellService.GetAllCellsByCellIds(secondCellsIds);
 
-            if (secondIsCellsWithStateBusyOrHit && firstCellsWithStateBusyOrHit && _gameService.GetGame(gameId).GameStateId == 2)
-            {
+                var firstCellsWithStateBusyOrHit = _cellService.CheckIsCellsWithStateBusyOrHit(firstCellList, _gameService.GetGame(gameId).GameStateId);
+                var secondCellsWithStateBusyOrHit = _cellService.CheckIsCellsWithStateBusyOrHit(secondCellList, _gameService.GetGame(gameId).GameStateId);
+
+                if (secondCellsWithStateBusyOrHit && firstCellsWithStateBusyOrHit && _gameService.GetGame(gameId).GameStateId == 2)
+                {
+                    return Ok(new IsEndOfTheGameViewModel { IsEndOfTheGame = false, WinnerUserName = "" });
+                }
+
+                var game = _gameService.GetNewGame(gameId);
+                if (!firstCellsWithStateBusyOrHit)
+                {
+                    await Mediator.Send(new UpdateGame.Command { Game = game });
+
+                    if (_gameHistoryService.CheckIfExistGameHistoryByGameId(gameId) == false)
+                    {
+                        var gameHistory = _gameHistoryService.CreateGameHistory(gameId, _appUserService.GetUsername(firstPlayerId), _appUserService.GetUsername(secondPlayerId), _gameStateService.GetGameState(3), _appUserService.GetUsername(secondPlayerId));
+                        await Mediator.Send(new CreateGameHistory.Command { GameHistory = gameHistory });
+                    }
+
+                    await Mediator.Send(new UpdateGame.Command { Game = game });
+                    return Ok(new IsEndOfTheGameViewModel { IsEndOfTheGame = true, WinnerUserName = _appUserService.GetUsername(secondPlayerId) });
+                }
+                else if (!secondCellsWithStateBusyOrHit)
+                {
+                    await Mediator.Send(new UpdateGame.Command { Game = game });
+
+                    if (_gameHistoryService.CheckIfExistGameHistoryByGameId(gameId) == false)
+                    {
+                        var gameHistory = _gameHistoryService.CreateGameHistory(gameId, _appUserService.GetUsername(firstPlayerId), _appUserService.GetUsername(secondPlayerId), _gameStateService.GetGameState(3), _appUserService.GetUsername(firstPlayerId));
+                        await Mediator.Send(new CreateGameHistory.Command { GameHistory = gameHistory });
+                    }
+
+                    await Mediator.Send(new UpdateGame.Command { Game = game });
+                    return Ok(new IsEndOfTheGameViewModel { IsEndOfTheGame = true, WinnerUserName = username });
+                }
                 return Ok(new IsEndOfTheGameViewModel { IsEndOfTheGame = false, WinnerUserName = "" });
             }
-
-            var game = _gameService.GetNewGame(gameId);
-            if (!firstCellsWithStateBusyOrHit)
-            {
-                await Mediator.Send(new UpdateGame.Command { Game = game });
-
-                if (_gameHistoryService.CheckIfExistGameHistoryByGameId(gameId) == false)
-                {
-                    var gameHistory = _gameHistoryService.CreateGameHistory(gameId, _appUserService.GetUsername(firstPlayerId), _appUserService.GetUsername(secondPlayerId), _gameStateService.GetGameState(3), _appUserService.GetUsername(secondPlayerId));
-                    await Mediator.Send(new CreateGameHistory.Command { GameHistory = gameHistory });
-                }
-
-                await Mediator.Send(new UpdateGame.Command { Game = game });
-                return Ok(new IsEndOfTheGameViewModel { IsEndOfTheGame = true, WinnerUserName = _appUserService.GetUsername(secondPlayerId) });
-            }
-            else if(!secondIsCellsWithStateBusyOrHit)
-            {
-                await Mediator.Send(new UpdateGame.Command { Game = game });
-
-                if (_gameHistoryService.CheckIfExistGameHistoryByGameId(gameId) == false)
-                {
-                    var gameHistory = _gameHistoryService.CreateGameHistory(gameId, _appUserService.GetUsername(firstPlayerId), _appUserService.GetUsername(secondPlayerId), _gameStateService.GetGameState(3), _appUserService.GetUsername(firstPlayerId));
-                    await Mediator.Send(new CreateGameHistory.Command { GameHistory = gameHistory });
-                }
-
-                await Mediator.Send(new UpdateGame.Command { Game = game });
-                return Ok(new IsEndOfTheGameViewModel { IsEndOfTheGame = true, WinnerUserName = username });
-            }
-            return Ok(new IsEndOfTheGameViewModel { IsEndOfTheGame = false, WinnerUserName = "" });
         }
 
         [HttpGet("game/clearingDb")]
@@ -637,12 +671,6 @@ namespace WEB.Controllers
                 var username = jwtSecurityToken.Claims.First(claim => claim.Type == "unique_name").Value;
                 var firstPlayerId = _playerService.GetPlayerId(username);
                 var secondPlayerId = _playerGameService.GetSecondPlayerId(firstPlayerId);
-
-                //update table AppUser(cleanup column IsHit)
-                var firstAppUser = _appUserService.CreateNewAppUser(firstPlayerId, null);
-                await Mediator.Send(new UpdateAppUser.Command { AppUser = firstAppUser });
-                var secondAppUser = _appUserService.CreateNewAppUser(secondPlayerId, null);
-                await Mediator.Send(new UpdateAppUser.Command { AppUser = secondAppUser });
 
                 var firstFieldId = _fieldService.GetFieldId(firstPlayerId);
                 var firstFieldShipIds = _shipWrapperService.GetAllShipIdsByFieldId(firstFieldId);
@@ -658,6 +686,7 @@ namespace WEB.Controllers
                 var secondShipWrappers = _shipWrapperService.GetAllShipWrappersByFiedlId(secondFieldId);
                 var secondPositions = _positionService.GetAllPoitionsByShipWrapperId(secondShipWrappers);
 
+
                 if (secondPositions.Any())
                 {
                     //delete all cells
@@ -671,6 +700,12 @@ namespace WEB.Controllers
                     {
                         await Mediator.Send(new DeleteShip.Command { Ship = ship });
                     }
+
+                    //update table AppUser(cleanup column IsHit)
+                    var firstAppUser = _appUserService.CreateNewAppUser(firstPlayerId, null);
+                    await Mediator.Send(new UpdateAppUser.Command { AppUser = firstAppUser });
+                    var secondAppUser = _appUserService.CreateNewAppUser(secondPlayerId, null);
+                    await Mediator.Send(new UpdateAppUser.Command { AppUser = secondAppUser });
 
                     return Ok("The database cleanup was successfull!");
                 }
