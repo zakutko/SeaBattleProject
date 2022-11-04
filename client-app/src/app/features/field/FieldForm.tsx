@@ -1,10 +1,11 @@
 import { ErrorMessage, Formik } from "formik";
-import { observer } from "mobx-react"
-import { Form, Label } from "semantic-ui-react"
-import MyTextInput from "../../common/form/MyTextInput";
+import { observer } from "mobx-react";
+import { Form } from "semantic-ui-react";
 import { useStore } from "../../stores/store";
 import { FormControl, FormControlLabel, Radio, RadioGroup } from "@mui/material";
 import "./field.css";
+import * as Yup from 'yup';
+import { AxiosError } from "axios";
 
 export default observer(function FieldForm(){
     const {shipStore} = useStore();
@@ -26,21 +27,35 @@ export default observer(function FieldForm(){
 
     const token = localStorage.getItem('token');
 
-    const onSubmit = async (values, {setErrors}) => {
+    const onSubmit = async (values) => {
         if(token){
-            shipStore.createShipOnField(values).catch(error => setErrors({error: "An error occured while adding a ship!"}));
+            shipStore.createShipOnField(values).catch(error => alert((error as AxiosError).response?.data));
         }
     }
+
+    const schema = Yup.object().shape({
+        x: Yup.number()
+            .required("Required")
+            .min(1, "Min number is 1")
+            .max(10, "Max number is 10")
+            .typeError("Must be number"),
+        y: Yup.number()
+            .required("Required")
+            .min(1, "Min number is 1")
+            .max(10, "Max number is 10")
+            .typeError("Must be number"),
+    });
 
     return (
         <>
         <div>
             <Formik
-                initialValues={{shipSize: SizeOptions.One, shipDirection: Options.Horizontal, x: 0, y: 0, token, error: null}}
+                validationSchema={schema}
+                initialValues={{shipSize: SizeOptions.One, shipDirection: Options.Horizontal, x: 0, y: 0, token, error: ""}}
                 onSubmit = {onSubmit}
                 >
-                {({ values, setFieldValue, handleSubmit, isSubmitting, errors}) => (
-                <Form className="form" onSubmit={() => {handleSubmit()}}>
+                {({ values, handleBlur, handleChange ,setFieldValue, handleSubmit, isSubmitting, errors}) => (
+                <Form className="form" onSubmit={handleSubmit}>
                     <h2>Ship size:</h2>
                     <FormControl component="fieldset">
                         <RadioGroup name={nameSize} value={values.shipSize} onChange={(event) => {
@@ -63,16 +78,37 @@ export default observer(function FieldForm(){
                     </FormControl>
                     <h2>Ship Position:</h2>
                     <Form.Group>
-                        <MyTextInput name='x' placeholder='X' label="X:"/>
-                        <MyTextInput name='y' placeholder='Y' label="Y:"/>
+                        <input
+                            type="x"
+                            name="x"
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            value={values.x}
+                            placeholder="Enter x"
+                            className="form-control"
+                        />
+                        <input
+                            type="y"
+                            name="y"
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            value={values.y}
+                            placeholder="Enter y"
+                            className="form-control"
+                        />
                     </Form.Group>
-
-                    <ErrorMessage
-                        name="error" render={() => 
-                        <Label 
-                            style={{marginBottom: 10}} basic color='red' content={errors.error} 
-                        />}  
-                    />
+                    <Form.Group>
+                        <div className="error-container">
+                            <p className="error">
+                                <ErrorMessage name="x"></ErrorMessage>
+                            </p>
+                        </div>
+                        <div>
+                            <p className="error">
+                                <ErrorMessage name="y"></ErrorMessage>
+                            </p>
+                        </div>
+                    </Form.Group>
 
                     <Form.Button loading={isSubmitting} positive content='Build a ship' type="submit"></Form.Button>
                 </Form>

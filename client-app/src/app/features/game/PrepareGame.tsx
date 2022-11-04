@@ -1,3 +1,4 @@
+import { AxiosError } from "axios";
 import { observer } from "mobx-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
@@ -38,15 +39,15 @@ export default observer(function PrepareGame() {
     function onClick() {
         const token = localStorage.getItem('token');
         if (token) {
-            agent.Games.isPlayerReady(token).then(response => {
-                setMessage(response.message);
-            });
             agent.Games.cells(token).then(response => {
                 setCellList(response);
             });
+            agent.Games.isPlayerReady(token)
+            .then(response => {setMessage(response.message)})
+            .then(() => navigate('/game'))
+            .catch(error => alert((error as AxiosError).response?.data))
         }
         console.log(message);
-        navigate("/game");
     }
 
     function onClickDelete() {

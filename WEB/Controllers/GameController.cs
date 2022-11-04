@@ -397,7 +397,7 @@ namespace WEB.Controllers
                 await Mediator.Send(new DeleteShip.Command { Ship = ship });
                 return BadRequest(ex.Message);
             }
-            return Ok("Ship added successfully!");
+            return Ok();
         }
 
         [HttpGet("isPlayerReady")]
@@ -410,7 +410,7 @@ namespace WEB.Controllers
 
             var fieldId = _fieldService.GetFieldId(firstPlayerId);
             var shipWrappers = _shipWrapperService.GetAllShipWrappersByFiedlId(fieldId);
-            if (shipWrappers.Count() < 10)
+            if (shipWrappers.Count() < 11)
             {
                 return BadRequest("Number of ships must be 10!");
             }

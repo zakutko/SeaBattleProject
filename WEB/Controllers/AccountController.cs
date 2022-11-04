@@ -30,13 +30,16 @@ namespace WEB.Controllers
         {
             var user = await _userManager.FindByEmailAsync(model.Email);
 
-            if (user == null) return Unauthorized();
+            if (user == null)
+            {
+                return BadRequest("User does not exist!");
+            }
 
             var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, false);
 
             if (!result.Succeeded)
             {
-                return BadRequest("Failed login");
+                return BadRequest("Invalid password!");
             }
             return Ok(CreateUserObject(user));
         }
@@ -50,7 +53,7 @@ namespace WEB.Controllers
             }
             if (await _userManager.Users.AnyAsync(x => x.UserName == model.UserName))
             {
-                return BadRequest("UserName taken");
+                return BadRequest("Username taken");
             }
 
             var user = new AppUser
@@ -64,7 +67,7 @@ namespace WEB.Controllers
 
             if (result.Succeeded)   
             {
-                return CreateUserObject(user);
+                return Ok(CreateUserObject(user));
             }
             return BadRequest("Problem registering user");
         }
